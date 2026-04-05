@@ -10,30 +10,44 @@ const firebaseAdmin = async () => {
     }
 
     const getSetting = await Setting.findOne({}, "notifications");
-    const firebase_database_url =
-      getSetting.notifications.firebase_database_url;
-    const firebase_credential = getSetting.notifications.firebase_credential;
+    const notifications = getSetting?.notifications || null;
+    const firebase_database_url = notifications?.firebase_database_url || "";
+    const firebase_credential = notifications?.firebase_credential || null;
+
+    const hasValidCredential =
+      firebase_credential &&
+      typeof firebase_credential === "object" &&
+      !Array.isArray(firebase_credential) &&
+      typeof firebase_credential.project_id === "string" &&
+      firebase_credential.project_id &&
+      typeof firebase_credential.client_email === "string" &&
+      firebase_credential.client_email &&
+      typeof firebase_credential.private_key === "string" &&
+      firebase_credential.private_key;
 
     console.log(
       "Initializing Firebase with Project ID:",
-      firebase_credential ? firebase_credential.project_id : "UNDEFINED",
+      hasValidCredential ? firebase_credential.project_id : "UNDEFINED",
     );
     // console.log("Database URL:", firebase_database_url);
 
-    admin.initializeApp({
-      credential: firebase_credential
-        ? admin.credential.cert(firebase_credential)
-        : "",
-      databaseURL: firebase_database_url ? firebase_database_url : "",
-    });
+    if (!hasValidCredential) return;
+
+    const appOptions = {
+      credential: admin.credential.cert(firebase_credential),
+    };
+
+    if (firebase_database_url) {
+      appOptions.databaseURL = firebase_database_url;
+    }
+
+    admin.initializeApp(appOptions);
     initializedApp = admin;
     //console.log("Firebase Admin SDK initialized successfully!");
   } catch (err) {
     console.error("Error initializing Firebase:", err);
   }
 };
-
-firebaseAdmin();
 
 const firebaseUser = {};
 

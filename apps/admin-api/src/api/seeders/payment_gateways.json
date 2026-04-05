@@ -21,17 +21,17 @@
   },
   {
     "name": "is_enabled",
-    "site": "Paystack",
+    "site": "PayStack",
     "value": "0"
   },
   {
     "name": "key",
-    "site": "Paystack",
+    "site": "PayStack",
     "value": "#"
   },
   {
     "name": "secret",
-    "site": "Paystack",
+    "site": "PayStack",
     "value": "#"
   },
   {
@@ -41,7 +41,7 @@
   },
   {
     "name": "mode",
-    "site": "Paystack",
+    "site": "PayStack",
     "value": "sandbox"
   },
   {
@@ -86,7 +86,7 @@
   },
   {
     "name": "currency",
-    "site": "Paystack",
+    "site": "PayStack",
     "value": "NRN"
   },
   {
@@ -117,12 +117,12 @@
   {
     "site": "Razorpay",
     "name": "webhook_secret",
-    "value": ""
+    "value": "#"
   },
   {
     "site": "Razorpay",
     "name": "webhook_url",
-    "value": ""
+    "value": "#"
   },
   {
     "name": "key",
