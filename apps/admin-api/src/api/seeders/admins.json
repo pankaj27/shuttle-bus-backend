@@ -70,7 +70,7 @@
       "address_2": "",
       "city": "",
       "pincode": "",
-      "is_agent": "",
+      "is_agent": false,
       "commission": 5,
       "company": "",
       "contact_no": null,

@@ -168,8 +168,8 @@ schedule.reSchedule = async function () {
     const scheduledNotifications = await ScheduledNotification.find({
       to: { $in: ["to_all", "to_specific"] },
     });
-    const getSetting = await Setting.findOne({}, "general");
-    let timeZone = getSetting.general.timezone;
+    const getSetting = await Setting.findOne({}, "general").lean();
+    const timeZone = getSetting?.general?.timezone || "Asia/Kolkata";
 
     scheduledNotifications.forEach((scheduledNotification) => {
       const dayOfWeek = scheduledNotification.days.join(",");

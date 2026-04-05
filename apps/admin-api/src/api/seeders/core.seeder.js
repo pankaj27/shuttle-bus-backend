@@ -8,6 +8,7 @@ const Permission = require("../models/permission.model");
 const Country = require("../models/country.model");
 const Currency = require("../models/currency.model");
 const Language = require("../models/language.model");
+const slug = require("slug");
 
 /**
  * Seed Core Dependencies (Roles, Admin User, and Default Settings)
@@ -23,7 +24,10 @@ const seedCore = async () => {
   let insertedPermissionIds = [];
 
   for (const permData of permissionsToSeed) {
-    let permission = await Permission.findOne({ slug: permData.slug });
+    const normalizedSlug = permData.slug || slug(permData.name, ".");
+    let permission = await Permission.findOne({
+      $or: [{ slug: normalizedSlug }, { name: permData.name }],
+    });
     if (!permission) {
       permission = await Permission.create(permData);
       console.log(`✅ Permission created: ${permData.name}`);
