@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice - {{pnr_no}}</title>
+    <style>
+      :root {
+        --primary-color: {{#if company.primary_color}}{{company.primary_color}}{{else}}#3a8697{{/if}};
+        --text-main: #333;
+        --text-muted: #666;
+        --bg-light: #f9fafb;
+        --border-color: #e5e7eb;
+      }
+
+      @page {
+        margin: 0;
+        size: A4;
+      }
+
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        margin: 0;
+        padding: 40px;
+        color: var(--text-main);
+        line-height: 1.5;
+        background-color: white;
+      }
+
+      .invoice-wrapper {
+        max-width: 800px;
+        margin: auto;
+      }
+
+      /* Header Section */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 40px;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 20px;
+      }
+
+      .logo-section h1 {
+        color: var(--primary-color);
+        margin: 0;
+        font-size: 28px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .logo-section img {
+        max-height: 60px;
+        margin-bottom: 10px;
+      }
+
+      .invoice-meta {
+        text-align: right;
+      }
+
+      .invoice-meta h2 {
+        margin: 0;
+        color: var(--text-main);
+        font-size: 24px;
+      }
+
+      .invoice-meta p {
+        margin: 5px 0;
+        color: var(--text-muted);
+        font-size: 14px;
+      }
+
+      /* Billing Section */
+      .billing-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        margin-bottom: 40px;
+      }
+
+      .bill-box h3 {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 5px;
+      }
+
+      .bill-box p {
+        margin: 4px 0;
+        font-size: 14px;
+      }
+
+      .bill-box strong {
+        display: block;
+        font-size: 16px;
+        margin-bottom: 5px;
+      }
+
+      /* Order Details Table */
+      .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+      }
+
+      .items-table th {
+        background-color: var(--bg-light);
+        text-align: left;
+        padding: 12px 15px;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        border-bottom: 2px solid var(--border-color);
+      }
+
+      .items-table td {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: top;
+        font-size: 14px;
+      }
+
+      .service-desc {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .service-meta {
+        font-size: 13px;
+        color: var(--text-muted);
+      }
+
+      /* Totals Section */
+      .summary-section {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .summary-box {
+        width: 300px;
+      }
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        font-size: 14px;
+      }
+
+      .summary-row.total {
+        border-top: 2px solid var(--primary-color);
+        margin-top: 10px;
+        padding-top: 15px;
+        font-weight: bold;
+        font-size: 18px;
+        color: var(--primary-color);
+      }
+
+      .discount-row {
+        color: #d97706; /* Amber-600 */
+      }
+
+      .ride-pass-badge {
+        background-color: #ecfdf5;
+        color: #059669;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 5px;
+      }
+
+      /* Footer */
+      .footer-note {
+        margin-top: 60px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--text-muted);
+        border-top: 1px solid var(--border-color);
+        padding-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-wrapper">
+      <header class="header">
+        <div class="logo-section">
+          {{#if company.light_logo}}
+          <img src="{{company.light_logo}}" alt="{{company.name}}" />
+          {{else if company.logo}}
+          <img src="{{company.logo}}" alt="{{company.name}}" />
+          {{else}}
+          <h1>{{company.name}}</h1>
+          {{/if}}
+		  {{#if company.site_description}}
+          <p
+            style="margin: 5px 0 0 0; font-size: 13px; color: var(--text-muted)"
+          >
+            {{company.site_description}}
+          </p>
+          {{/if}}
+        </div>
+        <div class="invoice-meta">
+          <h2>INVOICE</h2>
+          <p>#{{pnr_no}}</p>
+          <p>Date: {{created_date}}</p>
+          <p>Status: Paid via {{method}}</p>
+        </div>
+      </header>
+
+      <section class="billing-grid">
+        <div class="bill-box">
+          <h3>FROM</h3>
+          <strong>{{company.name}}</strong>
+          <p>{{company.address}}</p>
+          <p>Phone: +91 {{company.phone}}</p>
+          <p>Email: {{company.email}}</p>
+        </div>
+        <div class="bill-box">
+          <h3>BILL TO</h3>
+          <strong>{{customer.fullname}}</strong>
+          <p>{{customer.address}}</p>
+          <p>Phone: +91 {{customer.phone}}</p>
+          <p>Email: {{customer.email}}</p>
+        </div>
+      </section>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th style="width: 50%">Description</th>
+            <th style="text-align: right">Subtotal</th>
+            <th style="text-align: right">Tax</th>
+            {{#if isOffer}}
+            <th style="text-align: right">Discount</th>
+            {{/if}}
+            <th style="text-align: right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="service-desc">Transportation Service</span>
+              <div class="service-meta">
+                Trip: {{pickup_name}} &rarr; {{dropoff_name}}<br />
+                Scheduled: {{booking_date}} @ {{start_time}}
+              </div>
+              {{#if isPass}}
+              <div class="ride-pass-badge">
+                Ride Pass Applied ({{pass.no_of_rides}} Rides)
+              </div>
+              {{/if}}
+            </td>
+            <td style="text-align: right">₹{{sub_total}}</td>
+            <td style="text-align: right">₹{{tax_amount}}</td>
+            {{#if isOffer}}
+            <td style="text-align: right; color: #d97706">
+              -₹{{offer.discount_amount}}
+            </td>
+            {{/if}}
+            <td style="text-align: right; font-weight: 600">
+              ₹{{final_total_fare}}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <section class="summary-section">
+        <div class="summary-box">
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>₹{{sub_total}}</span>
+          </div>
+          <div class="summary-row">
+            <span>Tax</span>
+            <span>₹{{tax_amount}}</span>
+          </div>
+          {{#if isOffer}}
+          <div class="summary-row discount-row">
+            <span>Discount ({{offer.code}})</span>
+            <span>-₹{{offer.discount_amount}}</span>
+          </div>
+          {{/if}}
+          <div class="summary-row total">
+            <span>Final Amount</span>
+            {{#if isOffer}}
+            <span>₹{{offer.final_total_after_discount}}</span>
+            {{else}}
+            <span>₹{{final_total_fare}}</span>
+            {{/if}}
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer-note">
+        <p>Thank you for choosing {{company.name}}!</p>
+        <p>
+          This is a computer-generated invoice and does not require a signature.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

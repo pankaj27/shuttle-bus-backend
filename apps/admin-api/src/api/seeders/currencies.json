@@ -1,0 +1,121 @@
+[
+  {
+    "name": "Indian Rupee",
+    "code": "INR",
+    "symbol": "₹",
+    "rate": "1.0",
+    "status": true,
+    "default_currency": 1,
+    "razorpay_currency": true
+  },
+  {
+    "name": "South Africa",
+    "code": "ZAR",
+    "symbol": "R",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Kenya",
+    "code": "KES",
+    "symbol": "KES",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Egypt",
+    "code": "EG",
+    "symbol": "E£",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Nigeria",
+    "code": "NGN",
+    "symbol": "₦",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Ethiopia",
+    "code": "ETB",
+    "symbol": "ETB",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": false
+  },
+  {
+    "name": "EUR",
+    "code": "EURO",
+    "symbol": "€",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": false
+  },
+  {
+    "name": "C FA",
+    "code": "XOF",
+    "symbol": "XOF",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": true
+  },
+  {
+    "name": "US Dollar",
+    "code": "USD",
+    "symbol": "$",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Australia",
+    "code": "AU",
+    "symbol": "$",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Peso Mex",
+    "code": "MXN",
+    "symbol": "$",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": true
+  },
+  {
+    "name": "Brazilian Real",
+    "code": "BRL",
+    "symbol": "R$",
+    "rate": "",
+    "status": true,
+    "default_currency": false,
+    "razorpay_currency": false,
+    "is_deleted": false
+  }
+]

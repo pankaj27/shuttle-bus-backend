@@ -1,0 +1,53 @@
+const Joi = require('joi');
+const { objectId } = require('./custom.validation');
+
+const listOffer = {
+  query: Joi.object().keys({
+    search: Joi.string().allow(null, ''),
+    page: Joi.number().min(1),
+    limit: Joi.number().min(1).max(100),
+      type: Joi.string().valid("all", "active", "inactive"),
+      sortBy: Joi.string(),
+      sortDesc: Joi.string(),
+      status: Joi.boolean(),
+  }),
+};
+
+const createOffer = {
+  body: Joi.object().keys({
+    name: Joi.string(),
+    code: Joi.string(),
+    status: Joi.boolean(),
+  }).unknown(),
+};
+
+const updateOffer = {
+  params: Joi.object().keys({
+    offerId: Joi.required().custom(objectId),
+  }),
+  body: Joi.object()
+    .keys({
+      name: Joi.string(),
+      code: Joi.string(),
+      status: Joi.boolean(),
+    })
+    .unknown(),
+};
+
+
+const deleteOffer = {
+  params: Joi.object().keys({
+    offerId: Joi.string().custom(objectId),
+  }),
+};
+
+
+module.exports = {
+  // GET /v1/route
+  listOffer,
+  // POST /v1/route
+  createOffer,
+  // PATCH /v1/route/:routeId
+  updateOffer,
+  deleteOffer,
+};

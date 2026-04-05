@@ -1,0 +1,115 @@
+{
+  "general": {
+    "dark_logo": "http://res.cloudinary.com/ddrpdtey7/image/upload/v1771835675/settings/ujk9rpcirtlfjkkzgv4a.png",
+    "light_logo": "http://res.cloudinary.com/ddrpdtey7/image/upload/v1771835654/settings/zaxvigt6xjreahdwcavn.png",
+    "theme_mode": "light",
+    "app_url": "",
+    "name": "Bus shuttle",
+    "site_description": "",
+    "primary_color": "#3a8696",
+    "email": "developer@ridein.in",
+    "address": "New Delhi, 110010",
+    "phone": "8607248802",
+    "default_country": "IN",
+    "default_currency": "₹",
+    "date_format": "MMM D, YYYY",
+    "time_format": "h:mm A",
+    "timezone": "Asia/Kolkata",
+    "google_key": "",
+    "fee": "5",
+    "fee_type": "percentage",
+    "tax": "10",
+    "api_base_url": "https://bus-shuttle-api.onrender.com",
+    "logo": "http://res.cloudinary.com/ddrpdtey7/image/upload/v1771835690/settings/ptpe0dqhqwahq9tpox6w.png",
+    "favicon": "http://res.cloudinary.com/ddrpdtey7/image/upload/v1771826566/settings/noyaw5ytcim3wwjopinn.png",
+    "sidebar_style": "dark",
+    "default_language": "en"
+  },
+  "smtp": {
+    "is_production": true,
+    "username": "",
+    "host": "",
+    "password": "",
+    "port": "465",
+    "encryption": "tls",
+    "email": "",
+    "name": ""
+  },
+  "sms": {
+    "name": "demoMode",
+    "firebase": {
+      "is_enabled": false
+    },
+    "msg91": {
+      "is_enabled": false,
+      "key": "",
+      "senderId": "",
+      "templates": [
+        {
+          "id": "",
+          "message": ""
+        }
+      ]
+    },
+    "twilio": {
+      "is_enabled": false,
+      "sid": "",
+      "token": "",
+      "phone_number": ""
+    }
+  },
+  "refunds": {
+    "type": "percentage",
+    "amount": 25,
+    "contents": "<p>Are you sure want to cancel ride?</p><p>Complete amount will be refunded in your wallet.</p>",
+    "minimum_time": 5
+  },
+  "cancellation_policy": "",
+  "terms": "<h2><strong>Terms &amp; Conditions</strong></h2><p><br></p><p><strong>Terms and Conditions</strong></p><p> Effective Date: [Insert Date]</p><p><strong>1. Introduction</strong></p><p> Welcome to [Your App Name] (\"we,\" \"our,\" \"us\"). These Terms and Conditions govern your access to and use of our shuttle booking application (\"App\"). By accessing or using the App, you agree to comply with these terms. If you do not agree, please refrain from using our services. These terms form a legally binding agreement between you and [Your Company Name].</p><p><strong>2. Definitions</strong></p><p> For the purposes of these Terms and Conditions:</p><ul><li><strong>\"User\"</strong> refers to any individual who accesses or uses the App to book shuttle services.</li><li><strong>\"Driver\"</strong> refers to individuals authorized to provide shuttle transportation services through our platform.</li><li><strong>\"Service\"</strong> refers to the shuttle booking, transportation, and related functionalities provided via the App.</li><li><strong>\"Account\"</strong> refers to the personal account created by Users or Drivers within the App.</li><li><strong>\"Fare\"</strong> refers to the amount payable for a completed ride.</li></ul><p><strong>3. Eligibility</strong></p><p> To use the App, you must:</p><ul><li>Be at least 18 years old.</li><li>Register using accurate and complete personal information.</li><li>Have a valid payment method linked to your account (for Users).</li><li>Accept full responsibility for any activity under your account.</li><li>Comply with all applicable local laws and regulations related to transportation services.</li><li>Not have been previously suspended or removed from our platform for violations.</li></ul><p><strong>4. Account Registration and Security</strong></p><ul><li>Users and Drivers must create an account with valid and up-to-date information.</li><li>You are responsible for maintaining the confidentiality of your login credentials.</li><li>Sharing account credentials with others is strictly prohibited.</li><li>We reserve the right to suspend or terminate accounts found to be involved in fraudulent, illegal, or unauthorized activities.</li><li>Users and Drivers must notify us immediately of any unauthorized access or suspected security breaches.</li></ul><p><strong>5. Use of Services</strong></p><ul><li>The App is intended solely for booking shuttle rides and related transportation services.</li><li>Users agree not to use the App for any unlawful, fraudulent, or abusive activities.</li><li>Drivers agree to provide safe, timely, and professional transportation services.</li><li>Users and Drivers must comply with all policies and guidelines set forth by us.</li><li>We reserve the right to refuse service or cancel bookings for any reason, including safety concerns.</li><li>Any misuse or inappropriate behavior may result in immediate suspension or termination of your account.</li></ul><p><strong>6. Payments, Fees, and Charges</strong></p><ul><li>Users must pay the applicable fare for each ride as displayed on the App.</li><li>Payments are processed securely through third-party payment providers.</li><li>The fare amount may vary based on distance, time, demand, and promotions.</li><li>Additional charges may apply for cancellations, waiting time, extra stops, or damages to the vehicle.</li><li>Users agree that once a trip is completed, the fare is non-refundable unless deemed otherwise by our support team.</li><li>Drivers agree to receive their earnings as per our payment schedule, subject to applicable service fees.</li><li>We reserve the right to modify fares, fees, and payment terms at any time.</li></ul><p><strong>7. Cancellations and Refunds</strong></p><ul><li>Users may cancel a ride request, but a cancellation fee may be charged if the cancellation occurs after a Driver has been assigned.</li><li>Drivers who cancel rides frequently without valid reasons may face penalties or account suspension.</li><li>Refunds are subject to review and approval based on our refund policy.</li><li>In case of a dispute, Users may contact our customer support for resolution.</li></ul><p><strong>8. User Responsibilities</strong></p><p> Users must:</p><ul><li>Provide accurate pickup and drop-off locations.</li><li>Be present at the pickup location on time.</li><li>Treat Drivers with respect and refrain from any abusive, disruptive, or unlawful behavior.</li><li>Ensure the safety of personal belongings during the ride (we are not responsible for lost items).</li><li>Follow all applicable transportation laws and App policies.</li></ul><p><strong>9. Driver Responsibilities</strong></p><p> Drivers must:</p><ul><li>Maintain a valid driver’s license, insurance, and vehicle documentation as required by law.</li><li>Keep their vehicle in safe and roadworthy condition.</li><li>Provide professional, courteous, and safe transportation services.</li><li>Adhere to all traffic laws and drive responsibly.</li><li>Accept ride requests in good faith and avoid discrimination or unfair treatment of Users.</li><li>Use the App for ride assignments only and not for personal gain outside the platform.</li></ul><p><strong>10. Intellectual Property</strong></p><ul><li>The App, including all content, trademarks, logos, and software, is owned by or licensed to us.</li><li>Users and Drivers may not copy, modify, distribute, or use any content from the App without explicit permission.</li><li>Any unauthorized use of our intellectual property may result in legal action.</li></ul><p><strong>11. Limitation of Liability</strong></p><ul><li>We act as a technology platform and do not directly provide transportation services.</li><li>We are not liable for any accidents, delays, service disruptions, personal injuries, or damages resulting from shuttle services.</li><li>We do not guarantee service availability at all times and may suspend operations temporarily for maintenance or emergencies.</li><li>Users and Drivers agree to indemnify and hold us harmless from any claims, losses, damages, or legal disputes arising from their use of the App.</li></ul><p><strong>12. Termination of Services</strong></p><ul><li>We reserve the right to suspend or terminate any User or Driver account that violates these terms.</li><li>Users may request to delete their accounts at any time, but outstanding balances must be settled before account closure.</li><li>Drivers who fail to comply with our policies or service standards may be permanently removed from the platform.</li></ul><p><strong>13. Privacy Policy</strong></p><ul><li>Our Privacy Policy explains how we collect, use, and protect user data.</li><li>By using the App, you consent to our data practices as outlined in the Privacy Policy.</li></ul><p><strong>14. Dispute Resolution</strong></p><ul><li>Any disputes between Users and Drivers should first be addressed through our customer support.</li><li>If unresolved, disputes may be subject to arbitration or mediation as per local laws.</li><li>Legal actions against us must be filed in the jurisdiction specified in these terms.</li></ul><p><strong>15. Governing Law</strong></p><p> These terms shall be governed and interpreted in accordance with the laws of [Your Country/Region]. Any legal disputes shall be resolved within the courts of [Your Country/Region].</p><p><strong>16. Updates to Terms and Conditions</strong></p><ul><li>We may modify these Terms and Conditions from time to time.</li><li>Users will be notified of significant changes via email or in-app notifications.</li><li>Continued use of the App after updates constitutes acceptance of the revised terms.</li></ul><p><strong>17. Contact Us</strong></p><p> If you have any questions or concerns about these Terms and Conditions, please contact us at:</p><p>[Your Company Name]</p><p> [Your Contact Email]</p><p> [Your Contact Phone Number]</p><p> [Your Business Address]</p>",
+  "refferal": [
+    {
+      "user_type": "customer",
+      "value": 15,
+      "name": "number_of_days"
+    },
+    {
+      "user_type": "customer",
+      "value": 100,
+      "name": "referral_amount"
+    }
+  ],
+  "referral_policy": "<h2>Referral Policy</h2><p>Now refer your friends, colleagues and earn exciting credits in your Shuttle Clone wallet. How it works? </p><p><br></p><p><br></p><p>\n</p><p>1. Invite a friend to use Shuttle Clone using your referral code. Your friend gets Rs 100 in Shuttle credits on signing up. </p><p>\n</p><p>2. You get Rs 100 in credits when a friend confirms (completed ride post boarding) their 1\" paid ride.</p><p> \n</p><p>3. You can use the credits to book your next ride(s). </p><p>\n</p>",
+  "notifications": {
+    "otp_validation_via": true,
+    "firebase_database_url": "",
+    "firebase_credential": {},
+    "firebase_key": [""]
+  },
+  "privacypolicy": "<h2 class=\"ql-align-justify\"><strong>PRIVACY POLICY:</strong></h2><p class=\"ql-align-justify\">&nbsp;</p><p><strong>Privacy Policy</strong></p><p> Effective Date: [Insert Date]</p><p><strong>1. Introduction</strong></p><p> Welcome to [Your App Name] (\"we,\" \"our,\" \"us\"). Your privacy is important to us, and we are committed to protecting your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our shuttle booking application (\"App\"). By using our App, you consent to the practices described in this policy.</p><p><strong>2. Information We Collect</strong></p><p> We collect and process different types of information to provide and enhance our services. This includes:</p><ul><li><strong>Personal Information</strong>: This includes your full name, email address, phone number, profile picture (if provided), and payment details (e.g., credit/debit card information).</li><li><strong>Location Data</strong>: We collect real-time location data to provide shuttle booking services, estimate arrival times, and track ride progress. Location data is collected only when the App is in use, depending on user permissions.</li><li><strong>Usage Information</strong>: This includes information about how you interact with our App, including ride history, booking preferences, feedback, and device information (such as IP address, operating system, and app version).</li><li><strong>Cookies and Tracking Technologies</strong>: We use cookies, log files, and tracking technologies to collect data about your browsing behavior and improve our services.</li></ul><p><strong>3. How We Use Your Information</strong></p><p> We use the collected information for various purposes, including but not limited to:</p><ul><li><strong>Service Delivery</strong>: To facilitate shuttle bookings, provide estimated arrival times, and process payments securely.</li><li><strong>User Experience Enhancement</strong>: To personalize user preferences, improve navigation, and recommend relevant services.</li><li><strong>Customer Support</strong>: To address user inquiries, provide assistance, and resolve complaints.</li><li><strong>Security and Fraud Prevention</strong>: To detect fraudulent activities, ensure secure transactions, and protect users from unauthorized access.</li><li><strong>Legal Compliance</strong>: To comply with legal obligations, respond to law enforcement requests, and enforce our terms of service.</li></ul><p><strong>4. Sharing of Information</strong></p><p> We do not sell your personal information. However, we may share your information with:</p><ul><li><strong>Service Providers</strong>: Third-party companies that assist with payment processing, cloud hosting, data analytics, and customer support.</li><li><strong>Drivers</strong>: To facilitate ride coordination, we share trip details (e.g., pickup and drop-off location, contact number) with assigned drivers.</li><li><strong>Legal Authorities</strong>: If required by law, court orders, or government regulations, we may disclose personal information to comply with legal processes.</li><li><strong>Business Transfers</strong>: If our business undergoes a merger, acquisition, or asset sale, user data may be transferred as part of the transaction.</li></ul><p><strong>5. Data Security</strong></p><p> We implement strict security measures to protect your information, including:</p><ul><li>Encryption of sensitive data during transmission.</li><li>Secure storage of payment details and personal data.</li><li>Restricted access to personal information by authorized personnel only.</li><li>Regular monitoring and auditing of our security systems.</li></ul><p>While we take precautions to safeguard your data, no security system is completely foolproof. Users are encouraged to use strong passwords and protect their account credentials.</p><p><strong>6. Your Rights and Choices</strong></p><p> You have certain rights regarding your personal data, including:</p><ul><li><strong>Access and Correction</strong>: You can access and update your personal information through the App settings.</li><li><strong>Data Deletion</strong>: You can request the deletion of your account and personal data by contacting our support team.</li><li><strong>Marketing Preferences</strong>: You can opt out of receiving promotional messages via App settings or by following the unsubscribe instructions in our communications.</li><li><strong>Location Tracking</strong>: You can disable location tracking through your device settings, but doing so may affect service functionality.</li></ul><p><strong>7. Third-Party Links</strong></p><p> Our App may contain links to third-party websites or services that are not operated by us. We are not responsible for their privacy policies, and we encourage you to review their terms before providing any personal information.</p><p><strong>8. Data Retention</strong></p><p> We retain user information for as long as necessary to fulfill service obligations, comply with legal requirements, and resolve disputes. When data is no longer needed, we securely delete or anonymize it.</p><p><strong>9. Children’s Privacy</strong></p><p> Our App is not intended for use by individuals under the age of 18. We do not knowingly collect personal data from minors. If we discover that a minor has provided personal data, we will take steps to remove it promptly.</p><p><strong>10. Changes to This Policy</strong></p><p> We may update this Privacy Policy periodically. Any changes will be posted within the App, and we encourage users to review the policy regularly. Continued use of the App after modifications constitutes acceptance of the updated policy.</p><p><strong>11. Contact Us</strong></p><p> If you have any questions or concerns about this Privacy Policy or how we handle your data, please contact us at:</p><p>[Your Company Name]</p><p> [Your Contact Email]</p><p> [Your Contact Phone Number]</p><p class=\"ql-align-justify\"> [Your Business Address]</p>",
+  "storage": {
+    "name": "local",
+    "spaces": {
+      "cdn_url": "",
+      "access_key": "",
+      "secret_key": "",
+      "region": "",
+      "bucket": "",
+      "endpoint": ""
+    },
+    "cloudinary": {
+      "cloud_name": "",
+      "api_key": "",
+      "api_secret": ""
+    }
+  },
+  "app": {
+    "android_version": "",
+    "ios_version": "",
+    "playstore_url": "",
+    "appstore_url": "",
+    "background_location_update_interval": 1000,
+    "driver_online_location_update_interval": 1000,
+    "max_distance": 2000,
+    "prebooking_time": 30
+  }
+}

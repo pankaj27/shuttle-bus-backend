@@ -1,0 +1,406 @@
+[
+  {
+    "name": "Bus Layout Create",
+    "slug": "bus.layout.create"
+  },
+  {
+    "name": "User Edit",
+    "slug": "user.edit"
+  },
+  {
+    "name": "Stop Delete",
+    "slug": "stop.delete"
+  },
+  {
+    "name": "Bus Edit",
+    "slug": "bus.edit"
+  },
+  {
+    "name": "User Delete",
+    "slug": "user.delete"
+  },
+  {
+    "name": "Driver Delete",
+    "slug": "driver.delete"
+  },
+  {
+    "name": "Bus Layout Edit",
+    "slug": "bus.layout.edit"
+  },
+  {
+    "name": "Busschedule Delete",
+    "slug": "busschedule.delete"
+  },
+  {
+    "name": "Bus Create",
+    "slug": "bus.create"
+  },
+  {
+    "name": "Coupon View",
+    "slug": "coupon.view"
+  },
+  {
+    "name": "Customer View",
+    "slug": "customer.view"
+  },
+  {
+    "name": "Bus Load",
+    "slug": "bus.load"
+  },
+  {
+    "name": "Help & Support Delete",
+    "slug": "help.support.delete"
+  },
+  {
+    "name": "Booking Edit",
+    "slug": "booking.edit"
+  },
+  {
+    "name": "Coupon Create",
+    "slug": "coupon.create"
+  },
+  {
+    "name": "Pass Create",
+    "slug": "pass.create"
+  },
+  {
+    "name": "Payment View",
+    "slug": "payment.view"
+  },
+  {
+    "name": "Manage Dashboard",
+    "slug": "manage.dashboard"
+  },
+  {
+    "name": "Booking Assigns Edit",
+    "slug": "booking.assigns.edit"
+  },
+  {
+    "name": "Application Settings Edit",
+    "slug": "application.settings.edit"
+  },
+  {
+    "name": "Bus View",
+    "slug": "bus.view"
+  },
+  {
+    "name": "Driver Edit",
+    "slug": "driver.edit"
+  },
+  {
+    "name": "Notification Create",
+    "slug": "notification.create"
+  },
+  {
+    "name": "Manage Admin Profile",
+    "slug": "manage.admin.profile"
+  },
+  {
+    "name": "Manage Admin Profile Update",
+    "slug": "manage.admin.profile.update"
+  },
+  {
+    "name": "Route Create",
+    "slug": "route.create"
+  },
+  {
+    "name": "Route Delete",
+    "slug": "route.delete"
+  },
+  {
+    "name": "Manage Help & Support",
+    "slug": "help.support.view"
+  },
+  {
+    "name": "Coupon Edit",
+    "slug": "Coupon.edit"
+  },
+  {
+    "name": "Notification Edit",
+    "slug": "notification.edit"
+  },
+  {
+    "name": "Customer Create",
+    "slug": "customer.create"
+  },
+  {
+    "name": "Role Delete",
+    "slug": "Role.delete"
+  },
+  {
+    "name": "Bus Delete",
+    "slug": "bus.delete"
+  },
+  {
+    "name": "Bus Type Edit",
+    "slug": "bus.type.edit"
+  },
+  {
+    "name": "Driver Create",
+    "slug": "driver.create"
+  },
+  {
+    "name": "Stop Edit",
+    "slug": "stop.edit"
+  },
+  {
+    "name": "Notification View",
+    "slug": "notification.view"
+  },
+  {
+    "name": "Busschedule Edit",
+    "slug": "busschedule.edit"
+  },
+  {
+    "name": "Role Edit",
+    "slug": "role.edit"
+  },
+  {
+    "name": "Pass Edit",
+    "slug": "pass.edit"
+  },
+  {
+    "name": "User Create",
+    "slug": "user.create"
+  },
+  {
+    "name": "Bus Layout Delete",
+    "slug": "bus.layout.delete"
+  },
+  {
+    "name": "Role Create",
+    "slug": "role.create"
+  },
+  {
+    "name": "Manage Application Settings",
+    "slug": "manage.application.settings"
+  },
+  {
+    "name": "Bus Type Create",
+    "slug": "bus.type.create"
+  },
+  {
+    "name": "Customer Edit",
+    "slug": "customer.edit"
+  },
+  {
+    "name": "Pass View",
+    "slug": "pass.view"
+  },
+  {
+    "name": "Permissions",
+    "slug": "permissions"
+  },
+  {
+    "name": "Manage Trips Create",
+    "slug": "manage.trips.create"
+  },
+  {
+    "name": "Driver View",
+    "slug": "driver.view"
+  },
+  {
+    "name": "Stop View",
+    "slug": "stop.view"
+  },
+  {
+    "name": "Busschedule Create",
+    "slug": "busschedule.create"
+  },
+  {
+    "name": "Manage Trips View",
+    "slug": "manage.trips.view"
+  },
+  {
+    "name": "Manage Notification",
+    "slug": "manage.notification"
+  },
+  {
+    "name": "Manage Referrals",
+    "slug": "manage.referrals"
+  },
+  {
+    "name": "Route View",
+    "slug": "route.view"
+  },
+  {
+    "name": "Notification Delete",
+    "slug": "notification.delete"
+  },
+  {
+    "name": "Role View",
+    "slug": "role.view"
+  },
+  {
+    "name": "Payment Edit",
+    "slug": "payment.edit"
+  },
+  {
+    "name": "Booking Assigns Delete",
+    "slug": "booking.assigns.delete"
+  },
+  {
+    "name": "Booking Assigns Create",
+    "slug": "booking.assigns.create"
+  },
+  {
+    "name": "Suggestion View",
+    "slug": "suggestion.view"
+  },
+  {
+    "name": "User View",
+    "slug": "user.view"
+  },
+  {
+    "name": "Stop Create",
+    "slug": "stop.create"
+  },
+  {
+    "name": "Bus Layout View",
+    "slug": "bus.layout.view"
+  },
+  {
+    "name": "Customer Wallet History View",
+    "slug": "customer.wallet.history.view"
+  },
+  {
+    "name": "Booking Assigns View",
+    "slug": "booking.assigns.view"
+  },
+  {
+    "name": "Coupon Delete",
+    "slug": "coupon.delete"
+  },
+  {
+    "name": "Pass Delete",
+    "slug": "pass.delete"
+  },
+  {
+    "name": "Help & Support Edit",
+    "slug": "help.support.edit"
+  },
+  {
+    "name": "Bus Type Delete",
+    "slug": "bus.type.delete"
+  },
+  {
+    "name": "Route Edit",
+    "slug": "route.edit"
+  },
+  {
+    "name": "Bus Type View",
+    "slug": "bus.type.view"
+  },
+  {
+    "name": "Booking View",
+    "slug": "booking.view"
+  },
+  {
+    "name": "Busschedule View",
+    "slug": "busschedule.view"
+  },
+  {
+    "name": "Customer Delete",
+    "slug": "customer.delete"
+  },
+  {
+    "name": "Master Admin",
+    "slug": "master.admin"
+  },
+  {
+    "name": "Customer Wallet Create",
+    "slug": "customer.wallet.create"
+  },
+  {
+    "name": "Currency Create",
+    "slug": "currency.create"
+  },
+  {
+    "name": "Currency View",
+    "slug": "currency.view"
+  },
+  {
+    "name": "Currency Edit",
+    "slug": "currency.edit"
+  },
+  {
+    "name": "Currency Delete",
+    "slug": "currency.delete"
+  },
+  {
+    "name": "Language View",
+    "slug": "language.view"
+  },
+  {
+    "name": "Language Update",
+    "slug": "language.update"
+  },
+  {
+    "name": "Language Create",
+    "slug": "language.create"
+  },
+  {
+    "name": "Language Delete",
+    "slug": "language.delete"
+  },
+  {
+    "name": "Country Create",
+    "slug": "country.create"
+  },
+  {
+    "name": "Country View",
+    "slug": "country.view"
+  },
+  {
+    "name": "Country Edit",
+    "slug": "country.edit"
+  },
+  {
+    "name": "Administration Tool  View",
+    "slug": "administration.tool.view"
+  },
+  {
+    "name": "Manage Fixed Route",
+    "slug": "manage.fixed.route"
+  },
+  {
+    "name": "App Settings  View",
+    "slug": "app.settings.view"
+  },
+  {
+    "name": "Manage Vehicle",
+    "slug": "manage.vehicle"
+  },
+  {
+    "name": "Manage Users",
+    "slug": "manage.users"
+  },
+  {
+    "name": "Offer View",
+    "slug": "offer.view"
+  },
+  {
+    "name": "Offer Create",
+    "slug": "offer.create"
+  },
+  {
+    "name": "Offer Edit",
+    "slug": "offer.edit"
+  },
+  {
+    "name": "Offer Delete",
+    "slug": "offer.delete"
+  },
+  {
+    "name": "Customer Booking History View",
+    "slug": "customer.booking.history.view"
+  },
+  {
+    "name": "Suggestion Delete",
+    "slug": "suggestion.delete"
+  },
+  {
+    "name": "Manage Eagle Eye",
+    "slug": "manage.eagle.eye"
+  }
+]

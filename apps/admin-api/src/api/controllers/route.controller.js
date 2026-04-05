@@ -1,0 +1,596 @@
+const httpStatus = require("http-status");
+const { omit, isEmpty } = require("lodash");
+const base64Img = require("base64-img");
+const { VARIANT_ALSO_NEGOTIATES } = require("http-status");
+const mongoose = require("mongoose");
+const Route = require("../models/route.model");
+const RouteStop = require("../models/routeStop.model");
+const BusSchedule = require("../models/busSchedule.model");
+const { getCache, setCache, deleteCache } = require("../utils/cache");
+
+exports.load = async (req, res) => {
+  try {
+    const condition =
+      req.query.search && req.query.search.trim() !== ""
+        ? {
+            title: {
+              $regex: `(${req.query.search})`,
+              $options: "i",
+            },
+            status: true,
+          }
+        : { status: true };
+
+    const getRoutes = await Route.aggregate([
+      { $match: condition },
+
+      {
+        $lookup: {
+          from: "route_stops",
+          let: { routeId: "$_id" },
+          pipeline: [{ $match: { $expr: { $eq: ["$routeId", "$$routeId"] } } }],
+          as: "routeStop",
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          label: "$title",
+          value: "$_id",
+          totalStops: { $size: "$routeStop" },
+        },
+      },
+
+      { $sort: { label: 1 } },
+    ]);
+
+    res.json({ items: getRoutes });
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+exports.loadStops = async (req, res) => {
+  try {
+    const { routeId } = req.params;
+
+    // Check if stops are cached in Redis
+    const cachedStops = await getCache(`route_stops_${routeId}`);
+    if (cachedStops) {
+      return res.status(httpStatus.OK).json({
+        message: "stop load successfully. (cached via Redis)",
+        data: cachedStops,
+        status: true,
+      });
+    }
+
+    const getRouteStops = await RouteStop.aggregate([
+      {
+        $match: { routeId: new mongoose.Types.ObjectId(routeId) },
+      },
+      {
+        $lookup: {
+          from: "locations",
+          let: { stopId: "$stopId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$stopId"] } } },
+            {
+              $project: {
+                _id: 0,
+                id: "$_id",
+                address: 1,
+                title: 1,
+              },
+            },
+          ],
+          as: "location",
+        },
+      },
+      {
+        $unwind: "$location",
+      },
+      {
+        $sort: { order: 1 },
+      },
+      {
+        $project: {
+          _id: 0,
+          order: 1,
+          stopId: { $ifNull: ["$location.id", "-"] },
+          stop_name: { $ifNull: ["$location.title", "-"] },
+        },
+      },
+    ]);
+
+    // Save result in Redis cache (expires in 24 hours)
+    await setCache(`route_stops_${routeId}`, getRouteStops, 86400);
+
+    res.status(httpStatus.OK);
+    res.json({
+      message: "stop load successfully.",
+      data: getRouteStops,
+      status: true,
+    });
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+exports.loadData = async (req, res, next) => {
+  try {
+    const result = await Route.aggregate([
+      {
+        $match: { status: true },
+      },
+      {
+        $lookup: {
+          from: "timetables", // Name of the timetable collection
+          localField: "_id", // Field in the "routes" collection
+          foreignField: "routeId", // Field in the "timetable" collection
+          as: "timetables", // New field to store matching timetables
+        },
+      },
+      {
+        $match: {
+          timetables: { $ne: [] }, // Only routes with timetables
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $project: {
+          _id: 0,
+          value: "$_id",
+          text: "$title",
+        },
+      },
+    ]);
+
+    res.json({ total_count: result.length, items: result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.search = async (req, res, next) => {
+  try {
+    const { search } = req.params;
+    const condition = search
+      ? {
+          title: { $regex: `(\s+${search}|^${search})`, $options: "i" },
+          status: true,
+        }
+      : { status: true };
+
+    console.log("result", condition);
+    const result = await Route.find(condition).lean();
+
+    res.json({
+      total_count: result.length,
+      items: await Route.transformOptions(result),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get route by locationId
+ * @public
+ */
+exports.getLocationRoute = async (req, res) => {
+  try {
+    if (req.params.locationId) {
+      console.log("getLocationRoute", req.params.locationId);
+      const route = await Route.find({
+        locationId: req.params.locationId,
+        status: true,
+      }).sort({ _id: -1 });
+      res.status(httpStatus.OK);
+      res.json({
+        message: "stop load successfully.",
+        data: Route.transformOptions(route),
+        status: true,
+      });
+    } else {
+      res.json({
+        message: "locationId not found.",
+        status: false,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+/**
+ * Get route
+ * @public
+ */
+exports.get = async (req, res) => {
+  try {
+    const route = await Route.aggregate([
+      {
+        $lookup: {
+          from: "route_stops",
+          let: { routeId: "$_id" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$routeId", "$$routeId"] } } },
+            {
+              $lookup: {
+                from: "locations",
+                let: { stopId: "$stopId" },
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$_id", "$$stopId"] } } },
+                  {
+                    $project: {
+                      _id: 0,
+                      id: "$_id",
+                      address: 1,
+                      title: 1,
+                      coordinates: "$location.coordinates",
+                      type: 1,
+                    },
+                  },
+                ],
+                as: "location",
+              },
+            },
+            {
+              $unwind: "$location",
+            },
+            {
+              $project: {
+                routeId: 1,
+                stopId: 1,
+                order: 1,
+                location: 1,
+                distance: 1,
+                minimum_fare_pickup: 1,
+                minimum_fare_drop: 1,
+                price_per_km_drop: 1,
+                price_per_km_pickup: 1,
+              },
+            },
+            {
+              $sort: { order: 1 }, // ✅ Sort stops by _id
+            },
+          ],
+          as: "route_stop",
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          id: "$_id",
+          title: 1,
+          stops: {
+            $map: {
+              input: "$route_stop",
+              as: "stop",
+              in: {
+                id: "$$stop._id",
+                stopId: "$$stop.stopId",
+                stop_name: "$$stop.location.title",
+                address: "$$stop.location.address",
+                coordinates: "$$stop.location.coordinates",
+                order: "$$stop.order",
+                distance: "$$stop.distance",
+                minimum_fare_pickup: "$$stop.minimum_fare_pickup",
+                minimum_fare_drop: "$$stop.minimum_fare_drop",
+                price_per_km_drop: "$$stop.price_per_km_drop",
+                price_per_km_pickup: "$$stop.price_per_km_pickup",
+              },
+            },
+          },
+          status: 1,
+          createdAt: 1,
+        },
+      },
+      {
+        $match: { id: new mongoose.Types.ObjectId(req.params.routeId) },
+      },
+    ]);
+    res.status(httpStatus.OK);
+    res.json(route[0]);
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+/**
+ * Create new bus
+ * @public
+ */
+exports.create = async (req, res, next) => {
+  const session = await mongoose.startSession();
+
+  try {
+    const { title, stops, status } = req.body;
+    await session.startTransaction();
+
+    // auto increment
+    let lastIntegerId = 1;
+    const lastRoute = await Route.findOne({})
+      .sort({ integer_id: -1 })
+      .session(session);
+
+    lastIntegerId = lastRoute ? lastRoute.integer_id + 1 : 1;
+
+    const route = await new Route({
+      title,
+      status,
+      integer_id: lastIntegerId,
+    }).save({ session });
+
+    await RouteStop.updateRouteStop(stops, route._id, session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(httpStatus.CREATED).json({
+      status: true,
+      message: "route created successfully",
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    next(error);
+  }
+};
+
+/**
+ * Update existing routes
+ * @public
+ */
+
+exports.update = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  try {
+    const { title, stops, status } = req.body;
+    // Start session
+    await session.startTransaction();
+    const routeexists = await Route.findById(req.params.routeId).exec();
+    if (routeexists) {
+      const objUpdate = {
+        title,
+        status,
+      };
+      const updateroute = await Route.findByIdAndUpdate(
+        req.params.routeId,
+        {
+          $set: objUpdate,
+        },
+        {
+          new: true,
+        },
+      );
+      if (updateroute) {
+        await RouteStop.deleteMany(
+          { routeId: req.params.routeId },
+          { session },
+        );
+        await RouteStop.updateRouteStop(stops, req.params.routeId, session);
+
+        // Invalidate the Redis cache
+        await deleteCache(`route_stops_${req.params.routeId}`);
+        // finish transcation
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(httpStatus.CREATED);
+        return res.json({
+          status: true,
+          message: "route updated successfully",
+        });
+      }
+    } else {
+      // finish transcation
+      await session.commitTransaction();
+      session.endSession();
+      res.status(httpStatus.OK);
+      res.json({
+        status: true,
+        message: "No route found.",
+      });
+    }
+  } catch (error) {
+    console.log("error", error);
+    await session.abortTransaction();
+    session.endSession();
+    return next(error);
+  }
+};
+
+exports.status = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+
+    const update = await Route.updateOne(
+      { _id: req.params.routeId },
+      { status: status === "Active" ? "true" : "false" },
+    );
+
+    if (update.matchedCount > 0) {
+      res.json({
+        message: `status now is ${status}.`,
+        status: true,
+      });
+    } else {
+      res.json({
+        message: `update failed.`,
+        status: false,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get bus list
+ * @public
+ */
+exports.list = async (req, res, next) => {
+  try {
+    const condition = req.query.search
+      ? {
+          $or: [
+            {
+              title: {
+                $regex: new RegExp(req.query.search),
+                $options: "i",
+              },
+            },
+            // { max_seats: { $regex: new RegExp(req.query.search), $options: 'i' } },
+            // {layout : { $regex: new RegExp(req.query.search), $options: 'i' } },
+            // { last_seat: req.query.search != false},
+          ],
+          status:
+            req.query.type == "all"
+              ? { $in: [true, false] }
+              : req.query.type === "active",
+        }
+      : {
+          status:
+            req.query.type == "all"
+              ? { $in: [true, false] }
+              : req.query.type === "active",
+        };
+
+    let sort = {};
+    if (req.query.sortBy != "" && req.query.sortDesc != "") {
+      sort = { [req.query.sortBy]: req.query.sortDesc === "desc" ? -1 : 1 };
+    }
+
+    const aggregateQuery = Route.aggregate([
+      {
+        $lookup: {
+          from: "route_stops",
+          localField: "_id",
+          foreignField: "routeId",
+          as: "route_stop",
+        },
+      },
+      {
+        $unwind: "$route_stop",
+      },
+      {
+        $group: {
+          _id: "$_id",
+          total_stops: {
+            $sum: 1,
+          },
+          integer_id: { $first: "$integer_id" },
+          title: { $first: "$title" },
+          status: { $first: "$status" },
+          createdAt: { $first: "$createdAt" },
+          // Add other fields from 'routes' collection if needed
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          ids: "$_id",
+          integer_id: 1,
+          title: 1,
+          total_stops: 1,
+          status: 1,
+          createdAt: 1,
+        },
+      },
+      {
+        $match: condition,
+      },
+    ]);
+
+    const options = {
+      page: req.query.page || 1,
+      limit: req.query.per_page || 5,
+      collation: { locale: "en" },
+      customLabels: {
+        totalDocs: "totalRecords",
+        docs: "items",
+      },
+      sort,
+    };
+
+    const result = await Route.aggregatePaginate(aggregateQuery, options);
+
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Delete bus
+ * @public
+ */
+exports.remove = (req, res, next) => {
+  BusSchedule.findOne({ routeId: req.params.routeId })
+    .then((result) => {
+      if (result) {
+        res.status(httpStatus.OK).json({
+          status: false,
+          message: "Delete bus schedule first.",
+        });
+      }
+    })
+    .then(() => {
+      Route.deleteOne({
+        _id: req.params.routeId,
+      })
+        .then(() =>
+          RouteStop.deleteMany({
+            routeId: req.params.routeId,
+          }).then(() => {
+            // Invalidate the Redis cache when route deleted
+            deleteCache(`route_stops_${req.params.routeId}`);
+
+            res.status(httpStatus.OK).json({
+              status: true,
+              message: "Route deleted successfully.",
+            });
+          }),
+        )
+        .catch((e) => next(e));
+    });
+};
+
+/**
+ * Delete route detail
+ * @public
+ */
+exports.removeRouteStop = async (req, res, next) => {
+  try {
+    const { routeId, stopId } = req.params;
+
+    const exists = await RouteStop.exists({ routeId, _id: stopId });
+
+    if (!exists) {
+      return res.status(404).json({
+        status: false,
+        message: "Route stop not found.",
+      });
+    }
+
+    await RouteStop.deleteOne({ routeId, _id: stopId });
+
+    // Invalidate the Redis cache since a stop was removed
+    await deleteCache(`route_stops_${routeId}`);
+
+    res.status(httpStatus.OK).json({
+      status: true,
+      message: "Route stop deleted successfully.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};

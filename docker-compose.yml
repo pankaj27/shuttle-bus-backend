@@ -1,0 +1,91 @@
+
+
+services:
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    restart: always
+
+  admin-api:
+    build:
+      context: ./apps/admin-api
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./apps/admin-api/.env
+    environment:
+      - NODE_ENV=production
+      - TZ=Asia/Kolkata
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=FymfQncqc58iRtR0VMEpuW2OoAxxLUS6
+      - MONGO_URI=${MONGO_URI}
+    depends_on:
+      - redis
+    restart: always
+
+  admin-api-worker:
+    build:
+      context: ./apps/admin-api
+      dockerfile: Dockerfile
+    command: npm run start:workers
+    env_file:
+      - ./apps/admin-api/.env
+    environment:
+      - NODE_ENV=production
+      - TZ=Asia/Kolkata
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=FymfQncqc58iRtR0VMEpuW2OoAxxLUS6
+      - MONGO_URI=${MONGO_URI}
+    depends_on:
+      - redis
+    restart: always
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./apps/api/.env
+    environment:
+      - NODE_ENV=production
+      - TZ=Asia/Kolkata
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=FymfQncqc58iRtR0VMEpuW2OoAxxLUS6
+      - MONGO_URI=${MONGO_URI}
+    depends_on:
+      - redis
+    restart: always
+
+  api-worker:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    command: npm run start:workers
+    env_file:
+      - ./apps/api/.env
+    environment:
+      - NODE_ENV=production
+      - TZ=Asia/Kolkata
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=FymfQncqc58iRtR0VMEpuW2OoAxxLUS6
+      - MONGO_URI=${MONGO_URI}
+    depends_on:
+      - redis
+    restart: always
+
+  admin-dashboard:
+    build:
+      context: ./apps/admin-dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    restart: always

@@ -1,0 +1,170 @@
+[
+  {
+    "name": "India",
+    "short_name": "IN",
+    "phone_code": "91",
+    "status": true,
+    "is_deleted": false
+  },
+  {
+    "name": "Kenya",
+    "short_name": "KE",
+    "phone_code": "254",
+    "status": true,
+    "is_deleted": false
+  },
+  {
+    "name": "Egypt",
+    "short_name": "EG",
+    "phone_code": "20",
+    "status": true,
+    "is_deleted": false
+  },
+  {
+    "name": "Nigeria",
+    "short_name": "NG",
+    "phone_code": "234",
+    "status": true,
+    "is_deleted": false
+  },
+  {
+    "name": "South Africa",
+    "short_name": "ZAR",
+    "phone_code": "27",
+    "status": true,
+    "is_deleted": false
+  },
+  {
+    "name": "Ethiopia",
+    "short_name": "ETB",
+    "phone_code": "251",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Zambia",
+    "short_name": "K",
+    "phone_code": "+260",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Cuong Nguyen",
+    "short_name": "VN",
+    "phone_code": "84",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Gabon",
+    "short_name": "GA",
+    "phone_code": "241",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "United States",
+    "short_name": "US",
+    "phone_code": "1",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "اليمن",
+    "short_name": "YE",
+    "phone_code": "967",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Pakistan",
+    "short_name": "PK",
+    "phone_code": "92",
+    "status": true,
+    "is_deleted": false
+  },
+  {
+    "name": "BURKINA FASO",
+    "short_name": "BF",
+    "phone_code": "+226",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Ireland",
+    "short_name": "IRL",
+    "phone_code": "353",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Cyprus",
+    "short_name": "CY",
+    "phone_code": "+357",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Spain",
+    "short_name": "ES",
+    "phone_code": "34",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Australia",
+    "short_name": "AU",
+    "phone_code": "61",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "india",
+    "short_name": "IND",
+    "phone_code": "+91",
+    "status": false,
+    "is_deleted": true
+  },
+  {
+    "name": "Mexico",
+    "short_name": "MXN",
+    "phone_code": "52",
+    "status": false,
+    "is_deleted": true
+  },
+  {
+    "name": "zzCZCZ",
+    "short_name": "ASAS",
+    "phone_code": "98",
+    "status": false,
+    "is_deleted": true
+  },
+  {
+    "name": "Mexico",
+    "short_name": "MEX",
+    "phone_code": "52",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Tunisie",
+    "short_name": "TN",
+    "phone_code": "216",
+    "status": false,
+    "is_deleted": false
+  },
+  {
+    "name": "Brazil",
+    "short_name": "BRA",
+    "phone_code": "55",
+    "status": true,
+    "is_deleted": false
+  },
+  {
+    "name": "Ghana",
+    "short_name": "GH",
+    "phone_code": "233",
+    "status": true,
+    "is_deleted": false
+  }
+]

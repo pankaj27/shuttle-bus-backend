@@ -1,0 +1,1837 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shuttle App</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Tailwind for Layout Utilities -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      :root {
+        --bg-deep: #0b1219;
+        --bg-sidebar: #1c2a3a;
+        --bg-card: rgba(28, 42, 58, 0.7);
+        --accent-primary: #f4a632;
+        --accent-secondary: #ffb84d;
+        --text-main: #f1f5f9;
+        --text-dim: #94a3b8;
+        --glass-border: rgba(255, 255, 255, 0.08);
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg-deep);
+        color: var(--text-main);
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: "Outfit", sans-serif;
+      }
+
+      /* Animated Background */
+      .bg-glow {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: radial-gradient(
+          circle at 50% 50%,
+          #151f2b 0%,
+          #0b1219 100%
+        );
+      }
+
+      .glow-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        z-index: -1;
+        opacity: 0.15;
+        animation: drift 20s infinite alternate ease-in-out;
+      }
+
+      @keyframes drift {
+        from {
+          transform: translate(0, 0);
+        }
+        to {
+          transform: translate(100px, 100px);
+        }
+      }
+
+      /* Glassmorphism */
+      .glass-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 1.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .glass-card:hover {
+        border-color: rgba(244, 166, 50, 0.4);
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Sidebar & Navigation */
+      .nav-link {
+        transition: all 0.2s;
+        position: relative;
+      }
+
+      .nav-link.active {
+        color: var(--accent-primary);
+        font-weight: 600;
+      }
+
+      .nav-link.active::after {
+        content: "";
+        position: absolute;
+        left: -1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 1rem;
+        background: var(--accent-primary);
+        border-radius: 2px;
+      }
+
+      /* Code Blocks */
+      .code-container {
+        background: #0b0f19;
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin: 1.5rem 0;
+        position: relative;
+      }
+
+      .code-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.02);
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+      }
+
+      pre {
+        padding: 1.25rem;
+        overflow-x: auto;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 0.9rem;
+        color: #d1d5db;
+      }
+
+      .copy-btn {
+        cursor: pointer;
+        padding: 0.4rem;
+        border-radius: 0.5rem;
+        transition: background 0.2s;
+      }
+
+      .copy-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg-deep);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+
+      /* Tab Content */
+      .tab-panel {
+        display: none;
+        animation: fadeIn 0.4s ease-out;
+      }
+
+      .tab-panel.active {
+        display: block;
+      }
+
+      /* Requirements Grid */
+      .req-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+      }
+
+      .req-item {
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+        text-align: center;
+      }
+
+      .req-val {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--accent-primary);
+        display: block;
+      }
+
+      .req-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-dim);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .status-pill {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-ready {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+      }
+      .status-warning {
+        background: rgba(234, 179, 8, 0.15);
+        color: #facc15;
+      }
+
+      .gradient-text {
+        background: linear-gradient(
+          135deg,
+          var(--accent-primary) 0%,
+          var(--accent-secondary) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+    </style>
+  </head>
+  <body class="p-0 m-0">
+    <div class="bg-glow">
+      <div
+        class="glow-orb w-[600px] h-[600px] bg-[#1C2A3A] top-[-200px] left-[-200px]"
+      ></div>
+      <div
+        class="glow-orb w-[500px] h-[500px] bg-[#F4A632] bottom-[-100px] right-[-100px]"
+      ></div>
+    </div>
+
+    <!-- Layout Container -->
+    <div class="flex min-h-screen">
+      <!-- Sticky Sidebar -->
+      <aside
+        class="hidden lg:flex flex-col w-72 h-screen sticky top-0 border-r border-white/5 bg-[#1C2A3A] backdrop-blur-xl px-6 py-10 overflow-y-auto"
+      >
+        <div class="flex items-center gap-3 mb-12">
+          <div
+            class="w-10 h-10 bg-[#F4A632] rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20"
+          >
+            <i data-lucide="bus" class="text-white w-6 h-6"></i>
+          </div>
+          <span class="text-xl font-bold tracking-tight text-white"
+            >Shuttle <span class="gradient-text">App</span></span
+          >
+        </div>
+
+        <nav class="space-y-8">
+          <div>
+            <h5
+              class="text-xs uppercase font-bold text-slate-500 mb-4 tracking-widest pl-2"
+            >
+              Overview
+            </h5>
+            <div class="space-y-2">
+              <a
+                href="#architecture"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+              >
+                <i data-lucide="layers" class="w-4 h-4"></i> Architecture
+              </a>
+              <a
+                href="#requirements"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+              >
+                <i data-lucide="cpu" class="w-4 h-4"></i> System Requirements
+              </a>
+              <a
+                href="#prerequisites"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+              >
+                <i data-lucide="check-circle" class="w-4 h-4"></i> Software
+                Prerequisites
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <h5
+              class="text-xs uppercase font-bold text-slate-500 mb-4 tracking-widest pl-2"
+            >
+              Setup Modes
+            </h5>
+            <div class="space-y-2">
+              <button
+                onclick="switchMode('dev')"
+                class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[#F4A632] bg-amber-500/10 active-nav"
+                id="btn-nav-dev"
+              >
+                <i data-lucide="code" class="w-4 h-4"></i> Development
+              </button>
+              <button
+                onclick="switchMode('prod')"
+                class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+                id="btn-nav-prod"
+              >
+                <i data-lucide="rocket" class="w-4 h-4"></i> Production
+              </button>
+              <button
+                onclick="switchMode('db')"
+                class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+                id="btn-nav-db"
+              >
+                <i data-lucide="database" class="w-4 h-4"></i> Databases
+              </button>
+
+              <button
+                onclick="switchMode('config')"
+                class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+                id="btn-nav-config"
+              >
+                <i data-lucide="settings" class="w-4 h-4"></i> Configuration
+              </button>
+              <button
+                onclick="switchMode('android')"
+                class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+                id="btn-nav-android"
+              >
+                <i data-lucide="smartphone" class="w-4 h-4"></i> Android Apps
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <div class="mt-auto pt-10">
+          <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+            <p class="text-[10px] uppercase font-bold text-slate-500 mb-2">
+              Build Version
+            </p>
+            <p class="text-sm font-medium">v2.0.0 Stable</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 px-6 lg:px-16 py-12 max-w-5xl">
+        <!-- Hero Header -->
+        <header class="mb-16">
+   
+          <h1
+            class="text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-tight"
+          >
+           Shuttle<span class="gradient-text"> App</span>
+          </h1>
+          <p class="text-xl text-slate-400 max-w-2xl leading-relaxed">
+            A comprehensive suite of documentation for deploying the most
+            advanced shuttle app.
+          </p>
+        </header>
+
+        <!-- Architecture Grid -->
+        <section id="architecture" class="mb-20 scroll-mt-10">
+          <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+            <i data-lucide="layout-grid" class="text-[#F4A632]"></i>
+            Ecosystem Architecture
+          </h2>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card p-6">
+              <div
+                class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center mb-6"
+              >
+                <i data-lucide="shield-check" class="text-sky-400"></i>
+              </div>
+              <h3 class="text-lg font-bold mb-2">Admin API</h3>
+              <p class="text-sm text-slate-400 leading-relaxed">
+                Express.js backend for administrative control, asset management,
+                and core logic.
+              </p>
+              <div class="mt-4 flex gap-2">
+                <span class="status-pill status-ready">Node 22</span>
+              </div>
+            </div>
+            <div
+              class="glass-card p-6 border-amber-500/20 shadow-amber-500/5 shadow-2xl"
+            >
+              <div
+                class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center mb-6"
+              >
+                <i data-lucide="smartphone" class="text-amber-400"></i>
+              </div>
+              <h3 class="text-lg font-bold mb-2">Client API</h3>
+              <p class="text-sm text-slate-400 leading-relaxed">
+                The engine powering Customer and Driver mobile experiences via
+                RESTful endpoints.
+              </p>
+              <div class="mt-4 flex gap-2">
+                <span class="status-pill status-ready">Node 22</span>
+              </div>
+            </div>
+            <div class="glass-card p-6">
+              <div
+                class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center mb-6"
+              >
+                <i data-lucide="monitor" class="text-emerald-400"></i>
+              </div>
+              <h3 class="text-lg font-bold mb-2">Web Panel</h3>
+              <p class="text-sm text-slate-400 leading-relaxed">
+                Vue 3 + Vite frontend for managing routes, schedules, and
+                real-time operations.
+              </p>
+              <div class="mt-4 flex gap-2">
+                <span class="status-pill status-ready">Vue 3</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- System Requirements -->
+        <section id="requirements" class="mb-20 scroll-mt-10">
+          <div class="glass-card p-8 bg-amber-500/[0.02] border-amber-500/10">
+            <h2 class="text-2xl font-bold mb-8 flex items-center gap-3">
+              <i data-lucide="server" class="text-[#F4A632]"></i>
+              System Requirements
+            </h2>
+            <div class="req-grid">
+              <div class="req-item">
+                <span class="req-val">8 GB</span>
+                <span class="req-label">RAM (Min)</span>
+              </div>
+              <div class="req-item">
+                <span class="req-val">4 Cores</span>
+                <span class="req-label">vCPU</span>
+              </div>
+              <div class="req-item">
+                <span class="req-val">20 GB</span>
+                <span class="req-label">SSD Storage</span>
+              </div>
+              <div class="req-item">
+                <span class="req-val">Ubuntu/Debian</span>
+                <span class="req-label">OS (22.04+)</span>
+              </div>
+              <div class="req-item">
+                <span class="req-val">100Mbps</span>
+                <span class="req-label">Network</span>
+              </div>
+            </div>
+            <div
+              class="mt-8 p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 flex items-start gap-3"
+            >
+              <i data-lucide="info" class="w-5 h-5 text-amber-500 shrink-0"></i>
+              <p class="text-xs text-amber-200/70 leading-relaxed">
+                For production scaling, we recommend a
+                <strong class="text-amber-400">DigitalOcean Droplet</strong> or
+                <strong class="text-amber-400">AWS EC2</strong> with at least
+                8GB RAM to ensure BullMQ and Redis handle peak passenger
+                requests smoothly.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Prerequisites -->
+        <section id="prerequisites" class="mb-20 scroll-mt-10">
+          <div class="glass-card p-8 bg-slate-800/10 border-white/5">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+              <i data-lucide="terminal" class="text-[#F4A632]"></i>
+              Software Prerequisites
+            </h2>
+            <div class="grid md:grid-cols-2 gap-8">
+              <ul class="space-y-4">
+                <li class="flex items-start gap-3">
+                  <div
+                    class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center"
+                  >
+                    <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                  </div>
+                  <div class="text-sm">
+                    <strong class="text-white">Node.js Engine</strong>
+                    <p class="text-slate-400">
+                      v22.0.0+ required for admin-api stability.
+                    </p>
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <div
+                    class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center"
+                  >
+                    <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                  </div>
+                  <div class="text-sm">
+                    <strong class="text-white">NPM Package Manager</strong>
+                    <p class="text-slate-400">
+                      v10.x+ for native workspace support.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+              <ul class="space-y-4">
+                <li class="flex items-start gap-3">
+                  <div
+                    class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center"
+                  >
+                    <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                  </div>
+                  <div class="text-sm">
+                    <strong class="text-white">MongoDB Instance</strong>
+                    <p class="text-slate-400">
+                      v5.0+ Cloud Atlas or Local Instance.
+                    </p>
+                  </div>
+                </li>
+                <li class="flex items-start gap-3">
+                  <div
+                    class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center"
+                  >
+                    <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                  </div>
+                  <div class="text-sm">
+                    <strong class="text-white">Redis Cache</strong>
+                    <p class="text-slate-400">
+                      Required for BullMQ & performance layer.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Content Mode Switcher (Tab Panels) -->
+        <div id="content-dev" class="tab-panel active">
+          <div class="space-y-12">
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span
+                  class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]"
+                  >01</span
+                >
+                Foundation & Seeding
+              </h3>
+              <p class="text-slate-400 mb-6">
+                Initialize your fresh environment with core system constraints.
+                Config is now data-driven via JSON files.
+              </p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span
+                    class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"
+                    >Terminal Script</span
+                  >
+                  <button
+                    class="copy-btn text-slate-500 hover:text-white"
+                    onclick="copyCode(this)"
+                  >
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code># Populate Admin User, Roles, Countries, Currencies, Languages, and Settings
+cd apps/admin-api
+npm run seed:core
+
+# Or run complete setup
+npm run seed</code></pre>
+              </div>
+
+              <!-- Seeder Details -->
+              <div class="mt-6 glass-card p-5 border-white/5">
+                <div class="flex items-center gap-3 mb-3">
+                  <i data-lucide="database" class="text-[#F4A632] w-4 h-4"></i>
+                  <span class="text-sm font-bold">Data-Driven Seeding</span>
+                </div>
+                <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                  Essential data is now managed via JSON files in
+                  <code>apps/admin-api/src/api/seeders/</code>. You can easily
+                  modify these files to update your initial environment setup:
+                </p>
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div
+                    class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] text-slate-300 flex items-center gap-2"
+                  >
+                    <i
+                      data-lucide="shield-check"
+                      class="w-3 h-3 text-amber-500"
+                    ></i>
+                    roles.json
+                  </div>
+                  <div
+                    class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] text-slate-300 flex items-center gap-2"
+                  >
+                    <i data-lucide="key" class="w-3 h-3 text-orange-400"></i>
+                    permissions.json
+                  </div>
+                  <div
+                    class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] text-slate-300 flex items-center gap-2"
+                  >
+                    <i data-lucide="users" class="w-3 h-3 text-purple-400"></i>
+                    admins.json
+                  </div>
+                  <div
+                    class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] text-slate-300 flex items-center gap-2"
+                  >
+                    <i data-lucide="globe" class="w-3 h-3 text-sky-400"></i>
+                    countries.json
+                  </div>
+                  <div
+                    class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] text-slate-300 flex items-center gap-2"
+                  >
+                    <i data-lucide="coins" class="w-3 h-3 text-amber-400"></i>
+                    currencies.json
+                  </div>
+                  <div
+                    class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] text-slate-300 flex items-center gap-2"
+                  >
+                    <i
+                      data-lucide="languages"
+                      class="w-3 h-3 text-rose-400"
+                    ></i>
+                    languages.json
+                  </div>
+                  <div
+                    class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] text-slate-300 flex items-center gap-2"
+                  >
+                    <i
+                      data-lucide="settings"
+                      class="w-3 h-3 text-emerald-400"
+                    ></i>
+                    settings.json
+                  </div>
+                  <div
+                    class="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] text-slate-300 flex items-center gap-2"
+                  >
+                    <i
+                      data-lucide="credit-card"
+                      class="w-3 h-3 text-amber-500"
+                    ></i>
+                    payment_gateways.json
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span
+                  class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]"
+                  >02</span
+                >
+                Environment Config
+              </h3>
+              <p class="text-slate-400 mb-6">
+                Prepare the localized configuration files across the monorepo.
+              </p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span
+                    class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"
+                    >Multi-App Config</span
+                  >
+                  <button
+                    class="copy-btn text-slate-500 hover:text-white"
+                    onclick="copyCode(this)"
+                  >
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code># Initialize Root .env (For Docker Sync)
+copy .env.example .env
+
+# Initialize Apps
+copy apps/admin-api/.env.example apps/admin-api/.env
+copy apps/api/.env.example apps/api/.env
+copy apps/admin-dashboard/.env.example apps/admin-dashboard/.env</code></pre>
+              </div>
+
+              <!-- Environment Deep Dive Table -->
+              <div class="mt-8 grid md:grid-cols-2 gap-4">
+                <div class="glass-card p-5 border-white/5">
+                  <span
+                    class="text-[10px] uppercase font-bold text-[#F4A632] mb-1 block"
+                    >Root Config</span
+                  >
+                  <p class="text-xs text-slate-400">
+                    Used by
+                    <strong class="text-white">Docker Compose</strong> to bridge
+                    REDIS_PASSWORD and MONGO_URI across all services.
+                  </p>
+                </div>
+                <div class="glass-card p-5 border-white/5">
+                  <span
+                    class="text-[10px] uppercase font-bold text-emerald-400 mb-1 block"
+                    >Dashboard Config</span
+                  >
+                  <p class="text-xs text-slate-400">
+                    Set <code>VITE_API_URL</code> to point to your local
+                    <b>admin-api</b> e.g.,
+                    <code>http://localhost:3002/v1/</code>.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span
+                  class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]"
+                  >03</span
+                >
+                Execution
+              </h3>
+              <p class="text-slate-400 mb-6">
+                Launch the development ecosystem using Turborepo or Docker.
+              </p>
+              <div class="flex gap-4 mb-6">
+                <button
+                  class="px-6 py-2 rounded-full bg-slate-800 text-xs font-bold border border-white/10 hover:border-amber-500/50 transition-all text-[#F4A632]"
+                >
+                  Turborepo (NPM)
+                </button>
+                <button
+                  class="px-6 py-2 rounded-full bg-transparent text-xs font-bold border border-white/10 hover:border-amber-500/50 transition-all text-slate-500"
+                >
+                  Docker Mode
+                </button>
+              </div>
+              <div class="code-container">
+                <div class="code-header">
+                  <span
+                    class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"
+                    >NPM Native Launch</span
+                  >
+                  <button
+                    class="copy-btn text-slate-500 hover:text-white"
+                    onclick="copyCode(this)"
+                  >
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code># From Project Root
+npm run dev</code></pre>
+              </div>
+              <div
+                class="p-5 rounded-2xl bg-orange-500/5 border border-orange-500/10 flex items-start gap-4"
+              >
+                <i
+                  data-lucide="alert-triangle"
+                  class="text-orange-500 w-5 h-5 flex-shrink-0 mt-0.5"
+                ></i>
+                <div class="text-sm">
+                  <p class="text-orange-200 font-semibold mb-1">
+                    Docker Mount Notice
+                  </p>
+                  <p class="text-orange-200/60 font-medium">
+                    When using Docker Dev mode, local changes are synced via
+                    bind-mounts. Ensure Docker Desktop is running.
+                  </p>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- More Panels (Prod, DB etc. will be hidden/visible via JS) -->
+        <div id="content-prod" class="tab-panel">
+          <div class="space-y-12">
+            <section>
+              <h3 class="text-xl font-bold mb-4 tracking-tight">
+                Optimized Build Sequence
+              </h3>
+              <p class="text-slate-400 mb-6">
+                Generate production-ready assets for static hosting and
+                high-performance execution.
+              </p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span
+                    class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"
+                    >Turbo Compiler</span
+                  >
+                  <button
+                    class="copy-btn text-slate-500 hover:text-white"
+                    onclick="copyCode(this)"
+                  >
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code># Root Directory
+npm install --omit=dev
+npm run build</code></pre>
+              </div>
+            </section>
+
+            <section>
+              <h3
+                class="text-xl font-bold mb-4 tracking-tight flex items-center gap-2"
+              >
+                <i data-lucide="glob" class="text-sky-400 w-5 h-5"></i>
+                Domain & Subdomain Mapping
+              </h3>
+              <p class="text-slate-400 mb-6">
+                For a professional production environment, use dedicated
+                subdomains for each service.
+              </p>
+              <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="glass-card p-5 border-white/5">
+                  <span
+                    class="text-[10px] uppercase font-bold text-sky-400 mb-1 block"
+                    >Admin API</span
+                  >
+                  <code class="text-sm text-white"
+                    >admin-api.yourdomain.com</code
+                  >
+                </div>
+                <div class="glass-card p-5 border-white/5">
+                  <span
+                    class="text-[10px] uppercase font-bold text-amber-400 mb-1 block"
+                    >Client API</span
+                  >
+                  <code class="text-sm text-white">api.yourdomain.com</code>
+                </div>
+                <div class="glass-card p-5 border-white/5">
+                  <span
+                    class="text-[10px] uppercase font-bold text-emerald-400 mb-1 block"
+                    >Admin Dashboard</span
+                  >
+                  <code class="text-sm text-white">admin.yourdomain.com</code>
+                </div>
+              </div>
+            </section>
+
+            <section>
+              <h3
+                class="text-xl font-bold mb-4 tracking-tight flex items-center gap-2"
+              >
+                <i data-lucide="server" class="text-[#F4A632] w-5 h-5"></i>
+                Nginx Reverse Proxy
+              </h3>
+              <p class="text-slate-400 mb-6">
+                Configure Nginx to route traffic to the PM2 processes and serve
+                static assets.
+              </p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span
+                    class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"
+                    >/etc/nginx/sites-available/shuttle</span
+                  >
+                  <button
+                    class="copy-btn text-slate-500 hover:text-white"
+                    onclick="copyCode(this)"
+                  >
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code># Admin API Subdomain
+server {
+    server_name admin-api.yourdomain.com;
+    location / {
+        proxy_pass http://localhost:3002;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+# Client API Subdomain
+server {
+    server_name api.yourdomain.com;
+    location / {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}</code></pre>
+              </div>
+            </section>
+
+            <section>
+              <h3 class="text-xl font-bold mb-4 tracking-tight">
+                Process Management (PM2)
+              </h3>
+              <p class="text-slate-400 mb-6">
+                Keep your backend services online with clustering and
+                auto-restart.
+              </p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span
+                    class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"
+                    >Daemon Launch</span
+                  >
+                  <button
+                    class="copy-btn text-slate-500 hover:text-white"
+                    onclick="copyCode(this)"
+                  >
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code># Admin API + Workers
+pm2 start src/index.js --name "shuttle-admin"
+pm2 start src/api/workers/index.js --name "shuttle-workers"
+
+# Client API
+pm2 start server.js --name "shuttle-client"</code></pre>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div id="content-db" class="tab-panel">
+          <div class="space-y-12">
+            <section id="cloud-atlas" class="mb-10">
+              <div
+                class="glass-card p-8 bg-emerald-500/[0.03] border-emerald-500/10"
+              >
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                  <i data-lucide="cloud" class="text-emerald-500"></i>
+                  MongoDB Atlas Setup
+                </h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                  <div class="space-y-4">
+                    <p class="text-sm text-slate-400">
+                      1. Deploy a
+                      <strong class="text-white">Free M0 Cluster</strong> in
+                      your closest region.
+                    </p>
+                    <p class="text-sm text-slate-400">
+                      2. Configure
+                      <strong class="text-white">Network Access</strong> (Add
+                      0.0.0.0/0 for initial setup).
+                    </p>
+                    <p class="text-sm text-slate-400">
+                      3. Create a Database User and copy your
+                      <strong class="text-white">Connection String</strong>.
+                    </p>
+                  </div>
+                  <div class="flex flex-col justify-center gap-4">
+                    <a
+                      href="https://www.mongodb.com/cloud/atlas"
+                      target="_blank"
+                      class="w-full py-3 rounded-xl bg-emerald-600 text-center font-bold text-sm hover:bg-emerald-500 transition-colors"
+                      >Go to MongoDB Atlas</a
+                    >
+                    <a
+                      href="https://www.youtube.com/results?search_query=how+to+setup+mongodb+atlas"
+                      target="_blank"
+                      class="w-full py-3 rounded-xl border border-white/5 bg-white/5 text-center font-bold text-xs hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <i
+                        data-lucide="play-circle"
+                        class="w-4 h-4 text-red-500"
+                      ></i>
+                      Video Tutorial
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="redis-cloud">
+              <div class="glass-card p-8 bg-red-400/[0.03] border-red-400/10">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                  <i data-lucide="cpu" class="text-red-400"></i>
+                  Redis Enterprise Cloud
+                </h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                  <div class="space-y-4">
+                    <p class="text-sm text-slate-400">
+                      Redis is vital for BullMQ background job queues and route
+                      stop caching.
+                    </p>
+                    <p class="text-sm text-slate-400">
+                      Obtain your
+                      <strong class="text-white">Public Endpoint</strong> and
+                      <strong class="text-white">Default User Password</strong>
+                      from the Redis dashboard.
+                    </p>
+                  </div>
+                  <div class="flex flex-col justify-center gap-4">
+                    <a
+                      href="https://redis.com/try-free/"
+                      target="_blank"
+                      class="w-full py-3 rounded-xl bg-red-600 text-center font-bold text-sm hover:bg-red-500 transition-colors"
+                      >Start Redis Cloud</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+  
+
+        <div id="content-config" class="tab-panel">
+          <div class="space-y-12">
+            <section>
+              <h3
+                class="text-xl font-bold mb-4 tracking-tight flex items-center gap-2"
+              >
+                <i
+                  data-lucide="layout-dashboard"
+                  class="text-indigo-400 w-5 h-5"
+                ></i>
+                Admin Dashboard Setup
+              </h3>
+              <p class="text-slate-400 mb-6">
+                The Admin Dashboard is built using Vue 3 and Vite.
+              </p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span
+                    class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"
+                    >Installation & Launch</span
+                  >
+                  <button
+                    class="copy-btn text-slate-500 hover:text-white"
+                    onclick="copyCode(this)"
+                  >
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>cd apps/admin-dashboard
+npm install
+npm run dev
+
+# For production build
+npm run build</code></pre>
+              </div>
+            </section>
+
+            <section>
+              <h3
+                class="text-xl font-bold mb-4 tracking-tight flex items-center gap-2"
+              >
+                <i data-lucide="globe" class="text-emerald-400 w-5 h-5"></i>
+                Change Default Country & Currency
+              </h3>
+              <p class="text-slate-400 mb-6">
+                The defaults for the application are seeded from the API
+                settings. Change the values in
+                <code>apps/admin-api/src/api/seeders/settings.json</code>.
+              </p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span
+                    class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"
+                    >settings.json (Subset)</span
+                  >
+                  <button
+                    class="copy-btn text-slate-500 hover:text-white"
+                    onclick="copyCode(this)"
+                  >
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>{
+  "general": {
+    "default_country": "IN",    // e.g., "US", "GB"
+    "default_currency": "₹",    // e.g., "$", "£"
+    "time_format": "h:mm A",
+    "timezone": "Asia/Kolkata"
+    // ...
+  }
+}</code></pre>
+              </div>
+            </section>
+
+            <section>
+              <h3
+                class="text-xl font-bold mb-4 tracking-tight flex items-center gap-2"
+              >
+                <i data-lucide="credit-card" class="text-amber-400 w-5 h-5"></i>
+                Change Enabled Payment Gateway
+              </h3>
+              <p class="text-slate-400 mb-6">
+                You can set the default enabled payment gateway before seeding
+                by editing
+                <code>apps/admin-api/src/api/seeders/payment_gateways.json</code
+                >. Change <code>is_enabled</code> value to <code>1</code> for
+                your preferred gateway and <code>0</code> for others.
+              </p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span
+                    class="text-[10px] text-slate-500 uppercase tracking-widest font-bold"
+                    >payment_gateways.json</span
+                  >
+                  <button
+                    class="copy-btn text-slate-500 hover:text-white"
+                    onclick="copyCode(this)"
+                  >
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>[
+  {
+    "name": "is_enabled",
+    "site": "Razorpay",
+    "value": "1"   // &lt;--- Indicates Razorpay is enabled
+  },
+  {
+    "name": "is_enabled",
+    "site": "Paystack",
+    "value": "0"   // &lt;--- Indicates Paystack is disabled
+  }
+]</code></pre>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        
+        <!-- Android Panel -->
+        <div id="content-android" class="tab-panel">
+          <div class="space-y-12">
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">01</span>
+                Shuttle Android Apps – Installation Guide
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">This guide explains how to install and configure the <strong class="text-white">Shuttle User App</strong> and <strong class="text-white">Shuttle Driver App</strong> Android projects.</p>
+              <p class="text-sm text-slate-400 mb-3">Both applications require configuration such as <strong class="text-white">Firebase setup, Google Maps API key, backend base URL, and app branding</strong> before running the project.</p>
+              <p class="text-sm text-slate-400 mb-3">Note: <strong class="text-white">OTP authentication is NOT handled by Firebase.</strong></p>
+              <p class="text-sm text-slate-400 mb-3">The OTP system is managed by a <strong class="text-white">third-party OTP service through the backend API</strong>.</p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">02</span>
+                1. System Requirements
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Before starting the installation, make sure the following tools are installed.</p>
+              <h4 class="text-lg font-bold mt-6 mb-3">Required Software</h4>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Android Studio (Latest Version recommended)</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">JDK 11 or higher</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Gradle (comes with Android Studio)</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Firebase Account</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Google Cloud Console Account</div>
+              </li>
+              <h4 class="text-lg font-bold mt-6 mb-3">Recommended Testing Device</h4>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Android device or emulator running **Android 7.0 or higher**</div>
+              </li>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">03</span>
+                2. Project Structure
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">The project contains <strong class="text-white">two Android applications</strong>.</p>
+              <h5 class="text-md font-bold mt-4 mb-2 text-slate-300">1. Shuttle User App</h5>
+              <p class="text-sm text-slate-400 mb-3">Used by passengers to:</p>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Register / login</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Search routes</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Book shuttle rides</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Track trips</div>
+              </li>
+              <h5 class="text-md font-bold mt-4 mb-2 text-slate-300">2. Shuttle Driver App</h5>
+              <p class="text-sm text-slate-400 mb-3">Used by drivers to:</p>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Accept ride requests</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Manage trips</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Update trip status</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Receive ride notifications</div>
+              </li>
+              <p class="text-sm text-slate-400 mb-3">Both apps must be added separately to <strong class="text-white">Firebase</strong>.</p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">04</span>
+                3. Import Project in Android Studio
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Step 1</p>
+              <p class="text-sm text-slate-400 mb-3">Open <strong class="text-white">Android Studio</strong></p>
+              <p class="text-sm text-slate-400 mb-3">Step 2</p>
+              <p class="text-sm text-slate-400 mb-3">Click:</p>
+              <p class="text-sm text-slate-400 mb-3">File → Open</p>
+              <p class="text-sm text-slate-400 mb-3">Step 3</p>
+              <p class="text-sm text-slate-400 mb-3">Select the project folder.</p>
+              <p class="text-sm text-slate-400 mb-3">Step 4</p>
+              <p class="text-sm text-slate-400 mb-3">Wait for <strong class="text-white">Gradle Sync</strong> to complete.</p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">05</span>
+                4. Change Application Name
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">To change the <strong class="text-white">App Name</strong>, update the `strings.xml` file.</p>
+              <p class="text-sm text-slate-400 mb-3">Navigate to:</p>
+              <p class="text-sm text-slate-400 mb-3">app/src/main/res/values/strings.xml</p>
+              <p class="text-sm text-slate-400 mb-3">Update the following section:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>&lt;!DOCTYPE resources [&lt;!ENTITY appname "Shuttle Clone Captain"&gt;
+&lt;!ENTITY googleMapKey "API KEY"&gt;
+&lt;!ENTITY privacyPolicyUrl "https://shuttle.ridein.in/#/privacy-policy"&gt;
+&lt;!ENTITY termCondUrl "https://shuttle.ridein.in/#/terms"&gt;
+&lt;!ENTITY countryCode "+91"&gt;]&gt;
+
+&lt;resources&gt;
+&lt;string name="app_name" translatable="false"&gt;&appname;&lt;/string&gt;
+
+&lt;string name="google_maps_key"&gt;&googleMapKey;&lt;/string&gt;</code></pre>
+              </div>
+              <h5 class="text-md font-bold mt-4 mb-2 text-slate-300">Update These Values</h5>
+              <p class="text-sm text-slate-400 mb-3">appname → Your application name</p>
+              <p class="text-sm text-slate-400 mb-3">googleMapKey → Your Google Maps API Key</p>
+              <p class="text-sm text-slate-400 mb-3">privacyPolicyUrl → Your privacy policy URL</p>
+              <p class="text-sm text-slate-400 mb-3">termCondUrl → Your terms and conditions URL</p>
+              <p class="text-sm text-slate-400 mb-3">countryCode → Default country code</p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">06</span>
+                5. Change Package Name (Recommended)
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">If you plan to publish the app on <strong class="text-white">Google Play</strong>, change the package name.</p>
+              <h5 class="text-md font-bold mt-4 mb-2 text-slate-300">Step 1</h5>
+              <p class="text-sm text-slate-400 mb-3">Open:</p>
+              <p class="text-sm text-slate-400 mb-3">AndroidManifest.xml</p>
+              <h5 class="text-md font-bold mt-4 mb-2 text-slate-300">Step 2</h5>
+              <p class="text-sm text-slate-400 mb-3">Change the package name.</p>
+              <p class="text-sm text-slate-400 mb-3">Example:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>com.shuttle.user</code></pre>
+              </div>
+              <h5 class="text-md font-bold mt-4 mb-2 text-slate-300">Step 3</h5>
+              <p class="text-sm text-slate-400 mb-3">Also update the package name in:</p>
+              <p class="text-sm text-slate-400 mb-3">build.gradle</p>
+              <h5 class="text-md font-bold mt-4 mb-2 text-slate-300">Step 4</h5>
+              <p class="text-sm text-slate-400 mb-3">Use Android Studio refactor tool:</p>
+              <p class="text-sm text-slate-400 mb-3">Right Click Package → Refactor → Rename</p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">07</span>
+                6. Firebase Setup
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Firebase is used mainly for:</p>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Push Notifications (FCM)</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">App analytics (optional)</div>
+              </li>
+              <p class="text-sm text-slate-400 mb-3">Note: **OTP authentication is NOT handled by Firebase.</p>
+              <p class="text-sm text-slate-400 mb-3">OTP is handled by the backend using a third-party OTP service.**</p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">08</span>
+                6.1 Create Firebase Project
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Go to:</p>
+              <p class="text-sm text-slate-400 mb-3">https://console.firebase.google.com</p>
+              <p class="text-sm text-slate-400 mb-3">Step 1</p>
+              <p class="text-sm text-slate-400 mb-3">Click <strong class="text-white">Create Project</strong></p>
+              <p class="text-sm text-slate-400 mb-3">Step 2</p>
+              <p class="text-sm text-slate-400 mb-3">Enter a project name</p>
+              <p class="text-sm text-slate-400 mb-3">Example:</p>
+              <p class="text-sm text-slate-400 mb-3">Shuttle Clone</p>
+              <p class="text-sm text-slate-400 mb-3">Step 3</p>
+              <p class="text-sm text-slate-400 mb-3">Disable <strong class="text-white">Google Analytics</strong> if not required.</p>
+              <p class="text-sm text-slate-400 mb-3">Step 4</p>
+              <p class="text-sm text-slate-400 mb-3">Click <strong class="text-white">Create Project</strong></p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">09</span>
+                6.2 Add Android App (User App)
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Step 1</p>
+              <p class="text-sm text-slate-400 mb-3">Click <strong class="text-white">Add App → Android</strong></p>
+              <p class="text-sm text-slate-400 mb-3">Step 2</p>
+              <p class="text-sm text-slate-400 mb-3">Enter the <strong class="text-white">Android Package Name</strong></p>
+              <p class="text-sm text-slate-400 mb-3">Example:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>com.shuttle.user</code></pre>
+              </div>
+              <p class="text-sm text-slate-400 mb-3">Step 3</p>
+              <p class="text-sm text-slate-400 mb-3">Download the file:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>google-services.json</code></pre>
+              </div>
+              <p class="text-sm text-slate-400 mb-3">Step 4</p>
+              <p class="text-sm text-slate-400 mb-3">Place the file inside:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>UserApp/app/google-services.json</code></pre>
+              </div>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">10</span>
+                6.3 Add Android App (Driver App)
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Repeat the same process for the driver app.</p>
+              <p class="text-sm text-slate-400 mb-3">Example package name:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>com.shuttle.driver</code></pre>
+              </div>
+              <p class="text-sm text-slate-400 mb-3">Download:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>google-services.json</code></pre>
+              </div>
+              <p class="text-sm text-slate-400 mb-3">Place it inside:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>DriverApp/app/google-services.json</code></pre>
+              </div>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">11</span>
+                7. Enable Firebase Cloud Messaging (FCM)
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">FCM is used for:</p>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Driver ride notifications</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Trip updates</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Booking alerts</div>
+              </li>
+              <p class="text-sm text-slate-400 mb-3">Navigate to:</p>
+              <p class="text-sm text-slate-400 mb-3">Firebase Console → Cloud Messaging</p>
+              <p class="text-sm text-slate-400 mb-3">No additional configuration is required on the Firebase console for basic usage.</p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">12</span>
+                8. Google Maps API Setup
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">The app requires <strong class="text-white">Google Maps API</strong> to display maps and routes.</p>
+              <h4 class="text-lg font-bold mt-6 mb-3">Step 1</h4>
+              <p class="text-sm text-slate-400 mb-3">Go to:</p>
+              <p class="text-sm text-slate-400 mb-3">https://console.cloud.google.com</p>
+              <h4 class="text-lg font-bold mt-6 mb-3">Step 2</h4>
+              <p class="text-sm text-slate-400 mb-3">Create a new project.</p>
+              <h4 class="text-lg font-bold mt-6 mb-3">Step 3</h4>
+              <p class="text-sm text-slate-400 mb-3">Enable the following APIs:</p>
+              <p class="text-sm text-slate-400 mb-3">Maps SDK for Android</p>
+              <p class="text-sm text-slate-400 mb-3">Places API</p>
+              <p class="text-sm text-slate-400 mb-3">Directions API</p>
+              <p class="text-sm text-slate-400 mb-3">Geocoding API</p>
+              <h4 class="text-lg font-bold mt-6 mb-3">Step 4</h4>
+              <p class="text-sm text-slate-400 mb-3">Create an API Key:</p>
+              <p class="text-sm text-slate-400 mb-3">APIs & Services → Credentials → Create API Key</p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">13</span>
+                9. Add Google Maps API Key
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Open the file:</p>
+              <p class="text-sm text-slate-400 mb-3">app/src/main/res/values/strings.xml</p>
+              <p class="text-sm text-slate-400 mb-3">Update the value:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>&lt;!ENTITY googleMapKey "YOUR_GOOGLE_MAP_API_KEY"&gt;</code></pre>
+              </div>
+              <p class="text-sm text-slate-400 mb-3">Example:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>AIzaSyXXXXXXXXXXXX</code></pre>
+              </div>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">14</span>
+                10. Update Backend Base URL
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Open the file:</p>
+              <p class="text-sm text-slate-400 mb-3">AppConstants.kt</p>
+              <p class="text-sm text-slate-400 mb-3">Update the base URL:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>const val BASE_URL = "https://shuttle-api.ridein.in/api/" // YOUR BASE URL</code></pre>
+              </div>
+              <p class="text-sm text-slate-400 mb-3">Replace it with your server API URL.</p>
+              <p class="text-sm text-slate-400 mb-3">Example:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>const val BASE_URL = "https://yourdomain.com/api/"</code></pre>
+              </div>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">15</span>
+                11. Update App Logos
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">To change the application logo, replace the following resources.</p>
+              <p class="text-sm text-slate-400 mb-3">Navigate to:</p>
+              <p class="text-sm text-slate-400 mb-3">res/mipmap</p>
+              <p class="text-sm text-slate-400 mb-3">Replace:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>ic_app_logo
+ic_app_round_logo</code></pre>
+              </div>
+              <p class="text-sm text-slate-400 mb-3">Recommended size for launcher icons:</p>
+              <p class="text-sm text-slate-400 mb-3">512 x 512 PNG</p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">16</span>
+                12. Update Privacy Policy and Terms
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Open:</p>
+              <p class="text-sm text-slate-400 mb-3">strings.xml</p>
+              <p class="text-sm text-slate-400 mb-3">Update the following URLs.</p>
+              <p class="text-sm text-slate-400 mb-3">privacyPolicyUrl</p>
+              <p class="text-sm text-slate-400 mb-3">termCondUrl</p>
+              <p class="text-sm text-slate-400 mb-3">Example:</p>
+              <div class="code-container">
+                <div class="code-header">
+                  <span class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Code</span>
+                  <button class="copy-btn text-slate-500 hover:text-white" onclick="copyCode(this)">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                  </button>
+                </div>
+                <pre><code>https://yourdomain.com/privacy-policy
+https://yourdomain.com/terms</code></pre>
+              </div>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">17</span>
+                13. Build the Project
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">After completing configuration:</p>
+              <p class="text-sm text-slate-400 mb-3">Step 1</p>
+              <p class="text-sm text-slate-400 mb-3">Build → Clean Project</p>
+              <p class="text-sm text-slate-400 mb-3">Step 2</p>
+              <p class="text-sm text-slate-400 mb-3">Build → Rebuild Project</p>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">18</span>
+                14. Run the Applications
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Connect a real device or start an Android emulator.</p>
+              <p class="text-sm text-slate-400 mb-3">Run the following apps:</p>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Shuttle User App</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Shuttle Driver App</div>
+              </li>
+              <p class="text-sm text-slate-400 mb-3">Test the following features:</p>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Login / Registration</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Map loading</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Ride booking</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Driver notifications</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Trip status updates</div>
+              </li>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">19</span>
+                15. Common Issues
+              </h3>
+              <h4 class="text-lg font-bold mt-6 mb-3">Gradle Sync Error</h4>
+              <p class="text-sm text-slate-400 mb-3">Fix by restarting Android Studio:</p>
+              <p class="text-sm text-slate-400 mb-3">File → Invalidate Caches → Restart</p>
+              <hr class="border-white/5 my-8" />
+              <h4 class="text-lg font-bold mt-6 mb-3">Google Maps Not Loading</h4>
+              <p class="text-sm text-slate-400 mb-3">Check the following:</p>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">API key added correctly</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Maps SDK for Android enabled</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Internet permission enabled in AndroidManifest</div>
+              </li>
+              <hr class="border-white/5 my-8" />
+              <h4 class="text-lg font-bold mt-6 mb-3">OTP Not Working</h4>
+              <p class="text-sm text-slate-400 mb-3">OTP is handled by the <strong class="text-white">backend third-party OTP service</strong>.</p>
+              <p class="text-sm text-slate-400 mb-3">Make sure:</p>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Backend API is running</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">BASE_URL is correct</div>
+              </li>
+              <li class="flex items-start gap-3 mb-2">
+                <div class="mt-1 w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <i data-lucide="check" class="w-3 h-3 text-emerald-500"></i>
+                </div>
+                <div class="text-sm text-slate-300">Phone number API is reachable</div>
+              </li>
+              <hr class="border-white/5 my-8" />
+            </section>
+            <section>
+              <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-[#F4A632]">20</span>
+                16. Production Checklist
+              </h3>
+              <p class="text-sm text-slate-400 mb-3">Before publishing the app make sure:</p>
+              <p class="text-sm text-slate-400 mb-3">✔ Package name updated</p>
+              <p class="text-sm text-slate-400 mb-3">✔ Firebase configured</p>
+              <p class="text-sm text-slate-400 mb-3">✔ Google Maps API key added</p>
+              <p class="text-sm text-slate-400 mb-3">✔ Backend base URL updated</p>
+              <p class="text-sm text-slate-400 mb-3">✔ App logos replaced</p>
+              <p class="text-sm text-slate-400 mb-3">✔ Privacy policy updated</p>
+              <p class="text-sm text-slate-400 mb-3">✔ Driver notifications tested</p>
+              <p class="text-sm text-slate-400 mb-3">✔ Ride booking tested</p>
+              <hr class="border-white/5 my-8" />
+              <p class="text-sm text-slate-400 mb-3">This completes the installation and setup of the <strong class="text-white">Shuttle User App</strong> and <strong class="text-white">Shuttle Driver App</strong>.</p>
+            </section>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <footer
+          class="mt-32 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 text-slate-500 text-xs"
+        >
+          <p>&copy; 2026 Bus Shuttle. All rights optimized.</p>
+          <div class="flex gap-6">
+            <a href="#" class="hover:text-white transition-colors"
+              >Developer Portal</a
+            >
+            <a href="#" class="hover:text-white transition-colors"
+              >Full Documentation</a
+            >
+            <a href="#" class="hover:text-white transition-colors"
+              >API References</a
+            >
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <!-- Mobile Navigation Toggle (Simple for Demo) -->
+    <div class="lg:hidden fixed bottom-6 right-6 z-50">
+      <button
+        class="w-14 h-14 bg-[#F4A632] rounded-full shadow-2xl flex items-center justify-center text-white"
+      >
+        <i data-lucide="menu"></i>
+      </button>
+    </div>
+
+    <script>
+      // Tab Management
+      function switchMode(mode) {
+        // Update UI Panels
+        const panels = document.querySelectorAll(".tab-panel");
+        panels.forEach((p) => p.classList.remove("active"));
+        document.getElementById(`content-${mode}`).classList.add("active");
+
+        // Update Nav Buttons
+        const buttons = document.querySelectorAll(".nav-btn");
+        buttons.forEach((b) => {
+          b.classList.remove("bg-amber-500/10", "text-amber-500", "active-nav");
+          b.classList.add(
+            "text-slate-400",
+            "hover:bg-white/5",
+            "hover:text-white",
+          );
+        });
+
+        const activeBtn = document.getElementById(`btn-nav-${mode}`);
+        activeBtn.classList.remove(
+          "text-slate-400",
+          "hover:bg-white/5",
+          "hover:text-white",
+        );
+        activeBtn.classList.add(
+          "bg-amber-500/10",
+          "text-[#F4A632]",
+          "active-nav",
+        );
+
+        // Replace icons
+        lucide.createIcons();
+      }
+
+      // Copy Functionality
+      function copyCode(btn) {
+        const pre = btn.closest(".code-container").querySelector("code");
+        const text = pre.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const icon = btn.querySelector("i");
+          const originalIcon = icon.getAttribute("data-lucide");
+          icon.setAttribute("data-lucide", "check");
+          lucide.createIcons();
+          setTimeout(() => {
+            icon.setAttribute("data-lucide", originalIcon);
+            lucide.createIcons();
+          }, 2000);
+        });
+      }
+
+      // Initialize Lucide
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

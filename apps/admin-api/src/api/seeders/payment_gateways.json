@@ -1,0 +1,152 @@
+[
+  {
+    "name": "is_enabled",
+    "site": "Razorpay",
+    "value": "1"
+  },
+  {
+    "name": "key",
+    "site": "Razorpay",
+    "value": "#"
+  },
+  {
+    "name": "secret",
+    "site": "Razorpay",
+    "value": "#"
+  },
+  {
+    "name": "currency",
+    "site": "Razorpay",
+    "value": "INR"
+  },
+  {
+    "name": "is_enabled",
+    "site": "Paystack",
+    "value": "0"
+  },
+  {
+    "name": "key",
+    "site": "Paystack",
+    "value": "#"
+  },
+  {
+    "name": "secret",
+    "site": "Paystack",
+    "value": "#"
+  },
+  {
+    "name": "mode",
+    "site": "Razorpay",
+    "value": "sandbox"
+  },
+  {
+    "name": "mode",
+    "site": "Paystack",
+    "value": "sandbox"
+  },
+  {
+    "name": "is_enabled",
+    "site": "Paymob",
+    "value": "0"
+  },
+  {
+    "name": "mode",
+    "site": "Paymob",
+    "value": "sandbox"
+  },
+  {
+    "name": "username",
+    "site": "Paymob",
+    "value": "#"
+  },
+  {
+    "name": "password",
+    "site": "Paymob",
+    "value": "#"
+  },
+  {
+    "name": "key",
+    "site": "Paymob",
+    "value": "#"
+  },
+  {
+    "name": "secret",
+    "site": "Paymob",
+    "value": "#"
+  },
+  {
+    "name": "integration_id",
+    "site": "Paymob",
+    "value": "#"
+  },
+  {
+    "name": "frame_id",
+    "site": "Paymob",
+    "value": "#"
+  },
+  {
+    "name": "currency",
+    "site": "Paystack",
+    "value": "NRN"
+  },
+  {
+    "name": "is_enabled",
+    "site": "Mercadopago",
+    "value": "0"
+  },
+  {
+    "name": "access_token",
+    "site": "Mercadopago",
+    "value": "#"
+  },
+  {
+    "name": "public_key",
+    "site": "Mercadopago",
+    "value": "#"
+  },
+  {
+    "name": "webhook_secret",
+    "site": "Mercadopago",
+    "value": "#"
+  },
+  {
+    "name": "mode",
+    "site": "Mercadopago",
+    "value": "sandbox"
+  },
+  {
+    "site": "Razorpay",
+    "name": "webhook_secret",
+    "value": ""
+  },
+  {
+    "site": "Razorpay",
+    "name": "webhook_url",
+    "value": ""
+  },
+  {
+    "name": "key",
+    "site": "Flutterwave",
+    "value": "#"
+  },
+  {
+    "name": "secret",
+    "site": "Flutterwave",
+    "value": "#"
+  },
+  {
+    "name": "hash",
+    "site": "Flutterwave",
+    "value": "#"
+  },
+  {
+    "name": "mode",
+    "site": "Flutterwave",
+    "value": "sandbox"
+  },
+  {
+    "name": "is_enabled",
+    "site": "Flutterwave",
+    "value": "0"
+  }
+]

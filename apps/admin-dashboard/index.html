@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shuttle Bus Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <style>
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8fafc;
+        z-index: 9999;
+      }
+
+      .loader-container {
+        position: relative;
+        width: 200px;
+        height: 100px;
+      }
+
+      /* Bus Styling */
+      .bus {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 120px;
+        height: 45px;
+        background: #1c2a3a;
+        border-radius: 10px 15px 5px 5px;
+        animation: bounce 0.5s infinite;
+        box-shadow: inset -5px -5px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .bus::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 10px;
+        width: 30px;
+        height: 15px;
+        background: #e6f7ff;
+        border-radius: 5px 2px 2px 2px;
+      }
+
+      .bus::after {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 45px;
+        width: 65px;
+        height: 15px;
+        background: #e6f7ff;
+        border-radius: 2px;
+        box-shadow:
+          20px 0 0 #e6f7ff,
+          40px 0 0 #e6f7ff;
+      }
+
+      .wheel {
+        position: absolute;
+        bottom: -10px;
+        width: 20px;
+        height: 20px;
+        background: #334155;
+        border-radius: 50%;
+        border: 3px solid #f8fafc;
+        animation: spin 0.4s infinite linear;
+      }
+
+      .wheel-front {
+        left: 15px;
+      }
+      .wheel-back {
+        right: 15px;
+      }
+
+      /* Road / Line */
+      .road {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 4px;
+        background: #e2e8f0;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .road-line {
+        position: absolute;
+        width: 40px;
+        height: 100%;
+        background: #f4a632;
+        animation: drive 1s infinite linear;
+      }
+
+      .loading-text {
+        margin-top: 40px;
+        font-family:
+          'Inter',
+          system-ui,
+          -apple-system,
+          sans-serif;
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: #1c2a3a;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateX(-50%) translateY(0);
+        }
+        50% {
+          transform: translateX(-50%) translateY(-2px);
+        }
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes drive {
+        from {
+          left: -50px;
+        }
+        to {
+          left: 200px;
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.7;
+          transform: scale(0.98);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="loading-screen">
+        <div class="loader-container">
+          <div class="bus">
+            <div class="wheel wheel-front"></div>
+            <div class="wheel wheel-back"></div>
+          </div>
+          <div class="road">
+            <div class="road-line"></div>
+          </div>
+        </div>
+        <div class="loading-text">Shuttle App</div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

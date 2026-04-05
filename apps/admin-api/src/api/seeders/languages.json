@@ -1,0 +1,37 @@
+[
+  {
+    "code": "en",
+    "label": "English",
+    "status": true,
+    "default_language": true,
+    "country_short_name": "US"
+  },
+  {
+    "code": "ar",
+    "label": "Arabic",
+    "status": true,
+    "default_language": false,
+    "country_short_name": "EG"
+  },
+  {
+    "code": "hi",
+    "label": "Hindi",
+    "status": true,
+    "default_language": false,
+    "country_short_name": "IN"
+  },
+  {
+    "code": "es",
+    "label": "Spanish",
+    "status": true,
+    "default_language": false,
+    "country_short_name": "ES"
+  },
+  {
+    "code": "pt-br",
+    "label": "Brazil",
+    "status": true,
+    "default_language": false,
+    "country_short_name": "BRA"
+  }
+]

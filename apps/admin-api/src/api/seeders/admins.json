@@ -1,0 +1,81 @@
+[
+  {
+    "role": "supervisor",
+    "picture": "",
+    "is_active": true,
+    "last_login": "2021-06-11T08:39:40.192Z",
+    "firstname": "Akash",
+    "lastname": "Yadav",
+    "email": "akashyadav232@gmail.com",
+    "phone": "788090909",
+    "password": "$2a$10$Xd2izmbZlm96qxwQbSO0LOje0PKQGo5d3gy/fngoUgTfpczvJE6jO",
+    "isAdmin": false,
+    "country_code": "91",
+    "details": {
+      "address_1": "dsfsdf",
+      "address_2": "sdfsdfsdf",
+      "city": "dsfsdf",
+      "pincode": "21232",
+      "contact_no": "ssdfsdf",
+      "is_agent": true,
+      "document_gst_certificate": "",
+      "document_pan_card": "",
+      "commission": 0,
+      "company": "sdfsdf"
+    }
+  },
+  {
+    "role": "manager",
+    "picture": "",
+    "is_active": true,
+    "last_login": "2021-10-02T16:48:58.456Z",
+    "firstname": "manager",
+    "lastname": "manager",
+    "email": "manager@theferri.com",
+    "phone": "8899900090",
+    "password": "$2a$10$CnFrm0xwNOPA55KdvV0i5eXlxNCI58wNittAV8Uyd6ekDeMcsAwEC",
+    "country_code": "91",
+    "details": {
+      "company": "",
+      "address_1": "sadasdas",
+      "address_2": "",
+      "city": [
+        "sdsa"
+      ],
+      "pincode": "121333",
+      "contact_no": "",
+      "is_agent": true,
+      "document_gst_certificate": "",
+      "document_pan_card": "",
+      "commission": 0
+    }
+  },
+  {
+    "isAdmin": true,
+    "role": "admin",
+    "email": "admin@admin.com",
+    "firstname": "Admin",
+    "lastname": "Admin",
+    "phone": "8899999999",
+    "password": "$2a$10$D.oqSsMIzpkZ6XVh63uwluLdqHXafr..faSb2pC.IQJzuOJtC2B.K",
+    "last_login": "2026-03-01T07:29:19.215Z",
+    "status": "TRUE",
+    "is_active": true,
+    "resetPasswordExpires": null,
+    "resetPasswordToken": null,
+    "picture": "",
+    "country_code": "91",
+    "details": {
+      "address_1": "",
+      "address_2": "",
+      "city": "",
+      "pincode": "",
+      "is_agent": "",
+      "commission": 5,
+      "company": "",
+      "contact_no": null,
+      "document_gst_certificate": "",
+      "document_pan_card": ""
+    }
+  }
+]
