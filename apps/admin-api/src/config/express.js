@@ -72,6 +72,32 @@ app.use(methodOverride());
 // secure apps by setting various HTTP headers
 app.use(helmet());
 
+app.use((req, res, next) => {
+  const requestOrigin = req.headers.origin;
+  const allowedOrigins = corsOrigins;
+  const defaultOrigin = allowedOrigins[0];
+
+  if (defaultOrigin) {
+    const originToAllow =
+      requestOrigin && allowedOrigins.includes(requestOrigin)
+        ? requestOrigin
+        : defaultOrigin;
+
+    res.setHeader("Access-Control-Allow-Origin", originToAllow);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+
+    if (req.method === "OPTIONS") {
+      res.status(204).end();
+      return;
+    }
+  }
+
+  next();
+});
+
 // enable CORS - Cross Origin Resource Sharing
 // Enable CORS for all routes
 app.use(cors({
