@@ -39,7 +39,7 @@ export const useAuthStore = defineStore(
     async function login(email, password) {
       loading.value = true
       try {
-        const userData = await api.post('/auth/login', { email, password })
+        const userData = await api.post('auth/login', { email, password })
 
         if (userData.accessToken) {
           token.value = userData.accessToken
@@ -74,7 +74,7 @@ export const useAuthStore = defineStore(
       try {
         // Updated to match old project: POST /auth/access with roleId
         const payload = user.value?.roleId ? { roleId: user.value.roleId } : {}
-        const response = await api.get('/auth/access', payload)
+        const response = await api.get('auth/access', { params: payload })
 
         // Populate permissions and site-wide general config
         if (user.value) {
