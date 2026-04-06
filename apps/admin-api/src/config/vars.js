@@ -13,7 +13,13 @@ module.exports = {
   FULLBASEURL: process.env.FULL_BASEURL,
   corsOrigins: (process.env.CORS_ORIGIN || "")
     .split(",")
-    .map((origin) => origin.trim())
+    .map((origin) =>
+      origin
+        .trim()
+        .replace(/^`+|`+$/g, "")
+        .replace(/^"+|"+$/g, "")
+        .replace(/^'+|'+$/g, ""),
+    )
     .filter(Boolean),
   jwtSecret: process.env.JWT_SECRET,
   jwtExpirationInterval: process.env.JWT_EXPIRATION_MINUTES,

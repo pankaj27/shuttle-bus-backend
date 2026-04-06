@@ -49,32 +49,38 @@ app.use((req, res, next) => {
 // Middleware to set the timezone value in the app.locals object
 app.use(async (req, res, next) => {
   const getSetting = await Setting.getgeneral();
-  console.log("asdasd", getSetting.general);
-  if (getSetting) {
+  const general = getSetting && getSetting.general ? getSetting.general : null;
+  const appSettings = getSetting && getSetting.app ? getSetting.app : null;
+  if (general) {
     //app.locals.timezone = getSetting.general.timezone;
-    global.DEFAULT_TIMEZONE = getSetting.general.timezone ?? "Asia/Kolkata";
-    global.DEFAULT_CURRENCY_CODE = getSetting.general.default_currency;
-    global.DEFAULT_DATEFORMAT = getSetting.general.date_format
-      ? getSetting.general.date_format
+    global.DEFAULT_TIMEZONE = general.timezone ?? "Asia/Kolkata";
+    global.DEFAULT_CURRENCY_CODE = general.default_currency;
+    global.DEFAULT_DATEFORMAT = general.date_format
+      ? general.date_format
       : "DD MMM YYYY";
-    global.DEFAULT_TIMEFORMAT = getSetting.general.time_format
-      ? getSetting.general.time_format
+    global.DEFAULT_TIMEFORMAT = general.time_format
+      ? general.time_format
       : "hh:mm A";
-    global.DEFAULT_CURRENCY = getSetting.general.default_currency;
-    global.DEFAULT_APPNAME = getSetting.general.name;
-    global.DEFAULT_LOGO = getSetting.general.logo;
-    global.DEFAULT_EMAIL = getSetting.general.email;
-    global.DEFAULT_ADDRESS = getSetting.general.address;
-    global.MAX_DISTANCE = getSetting.app.max_distance
-      ? getSetting.app.max_distance
+    global.DEFAULT_CURRENCY = general.default_currency;
+    global.DEFAULT_APPNAME = general.name;
+    global.DEFAULT_LOGO = general.logo;
+    global.DEFAULT_EMAIL = general.email;
+    global.DEFAULT_ADDRESS = general.address;
+    global.MAX_DISTANCE =
+      appSettings && appSettings.max_distance ? appSettings.max_distance
       : 2000;
-    global.PREBOOKING_MINUTE = getSetting.app.prebooking_time
-      ? getSetting.app.prebooking_time
+    global.PREBOOKING_MINUTE =
+      appSettings && appSettings.prebooking_time ? appSettings.prebooking_time
       : 30;
 
-    global.STARTBOOKING_MINUTE = getSetting.app.startbooking_minute
-      ? getSetting.app.startbooking_minute
+    global.STARTBOOKING_MINUTE =
+      appSettings && appSettings.startbooking_minute
+      ? appSettings.startbooking_minute
       : 30;
+  } else {
+    global.DEFAULT_TIMEZONE = global.DEFAULT_TIMEZONE || "Asia/Kolkata";
+    global.DEFAULT_DATEFORMAT = global.DEFAULT_DATEFORMAT || "DD MMM YYYY";
+    global.DEFAULT_TIMEFORMAT = global.DEFAULT_TIMEFORMAT || "hh:mm A";
   }
   next();
 });

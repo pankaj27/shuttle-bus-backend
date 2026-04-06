@@ -20,17 +20,43 @@ let defaultCurrency = "";
 let secretKey = "";
 
 const authenticate = async () => {
-  const paymobSetting = await paymentGateway("Razorpay");
-  instance = new Razorpay({
-    key_id: paymobSetting.key,
-    key_secret: paymobSetting.secret,
-  });
-  defaultCurrency = paymobSetting.currency;
-  secretKey = paymobSetting.secret;
-  return instance;
+  try {
+    const razorpaySetting = await paymentGateway("Razorpay");
+    const keyId =
+      razorpaySetting && typeof razorpaySetting.key === "string"
+        ? razorpaySetting.key.trim()
+        : "";
+    const keySecret =
+      razorpaySetting && typeof razorpaySetting.secret === "string"
+        ? razorpaySetting.secret.trim()
+        : "";
+    const currency =
+      razorpaySetting && typeof razorpaySetting.currency === "string"
+        ? razorpaySetting.currency.trim()
+        : "";
+
+    if (!keyId || keyId === "#" || !keySecret || keySecret === "#") {
+      instance = null;
+      defaultCurrency = currency || defaultCurrency;
+      secretKey = "";
+      return null;
+    }
+
+    instance = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
+    defaultCurrency = currency || defaultCurrency;
+    secretKey = keySecret;
+    return instance;
+  } catch (e) {
+    instance = null;
+    secretKey = "";
+    return null;
+  }
 };
 
-authenticate();
+authenticate().catch(() => {});
 
 /**
  * Payment initiate
@@ -39,6 +65,9 @@ authenticate();
  * **/
 const initiatePay = async (amount, userDetail) => {
   try {
+    if (!instance) await authenticate();
+    if (!instance) return { codeStatus: false };
+
     let parameters = {
       amount: parseInt(amount) * 100,
       currency: defaultCurrency,

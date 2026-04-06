@@ -17,14 +17,31 @@ const { user } = require("../../notifications");
 let flw = null;
 
 const authenticate = async () => {
-  const flwSetting = await paymentGateway("Flutterwave");
-  if (flwSetting) {
-    flw = new Flutterwave(flwSetting.key, flwSetting.secret);
+  try {
+    const flwSetting = await paymentGateway("Flutterwave");
+    const publicKey =
+      flwSetting && typeof flwSetting.key === "string"
+        ? flwSetting.key.trim()
+        : "";
+    const secretKey =
+      flwSetting && typeof flwSetting.secret === "string"
+        ? flwSetting.secret.trim()
+        : "";
+
+    if (!publicKey || publicKey === "#" || !secretKey || secretKey === "#") {
+      flw = null;
+      return null;
+    }
+
+    flw = new Flutterwave(publicKey, secretKey);
+    return flw;
+  } catch (e) {
+    flw = null;
+    return null;
   }
-  return flw;
 };
 
-authenticate();
+authenticate().catch(() => {});
 
 /**
  * Initiate Flutterwave Payment
@@ -94,6 +111,7 @@ const initiate = async (amount, userDetail) => {
 const verification = async (transactionId, orderId) => {
   try {
     if (!flw) await authenticate();
+    if (!flw) return false;
 
     const response = await flw.Transaction.verify({ id: transactionId });
     if (
