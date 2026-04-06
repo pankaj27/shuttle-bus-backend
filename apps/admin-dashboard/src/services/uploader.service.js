@@ -8,7 +8,7 @@ export const uploaderService = {
     if (width) formData.append('width', width)
     if (height) formData.append('height', height)
 
-    return api.post('/uploader', formData, {
+    return api.post('uploader', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -16,6 +16,6 @@ export const uploaderService = {
   },
 
   delete(path) {
-    return api.delete(`/uploader`, { data: { path } })
+    return api.delete('uploader', { data: { path } })
   },
 }
