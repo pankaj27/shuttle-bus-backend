@@ -86,7 +86,7 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", originToAllow);
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
 
     if (req.method === "OPTIONS") {
@@ -103,7 +103,7 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: corsOrigins.length ? corsOrigins : true,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
