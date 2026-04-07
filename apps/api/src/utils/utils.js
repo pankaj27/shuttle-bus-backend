@@ -47,7 +47,8 @@ const sendSMS = async (phone, otp, templateId, message) => {
   // Fallback for positional calls where message is missing
   if (!targetMessage) targetMessage = targetOtp;
 
-  const { sms } = await getSetting();
+  const setting = await getSetting();
+  const sms = setting && typeof setting === "object" ? setting.sms : undefined;
 
   if (!sms || !sms.name || sms.name === "demoMode") return false;
 
@@ -277,9 +278,10 @@ const updateReferAmount = async (amount, date, reffby, referFrom) => {
 
 const getSetting = async () => {
   try {
-    return await Setting.findOne({}).sort({ _id: -1 }).limit(1);
+    const setting = await Setting.findOne({}).sort({ _id: -1 }).limit(1);
+    return setting || {};
   } catch (err) {
-    return err;
+    return {};
   }
 };
 
