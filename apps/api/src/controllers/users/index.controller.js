@@ -35,7 +35,16 @@ module.exports = {
 
       console.log("req.body", req.body);
 
-      const parsedDeviceType = Number(device_type);
+      const parsedDeviceType = (() => {
+        if (device_type === undefined || device_type === null || device_type === "") return 1;
+        if (typeof device_type === "string") {
+          const normalized = device_type.trim().toLowerCase();
+          if (normalized === "android") return 1;
+          if (normalized === "ios") return 2;
+        }
+        return Number(device_type);
+      })();
+
       if (![1, 2].includes(parsedDeviceType)) {
         return res.status(400).json({
           status: false,

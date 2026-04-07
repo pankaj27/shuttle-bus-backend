@@ -34,24 +34,21 @@ const form = reactive({
 watch(
   () => [ form.msg91.is_enabled, form.twilio.is_enabled],
   (newVals, oldVals) => {
-    const [f, m, t] = newVals;
-    const [of, om, ot] = oldVals || [false, false, false];
+    const [m, t] = newVals;
+    const [om, ot] = oldVals || [false, false];
 
     // 1. Enforce mutual exclusion (only one active at a time)
-    if (f && !of) {
-      if (form.msg91.is_enabled) form.msg91.is_enabled = false;
-      if (form.twilio.is_enabled) form.twilio.is_enabled = false;
-    } else if (m && !om) {
+    if (m && !om) {
       if (form.twilio.is_enabled) form.twilio.is_enabled = false;
     } else if (t && !ot) {
       if (form.msg91.is_enabled) form.msg91.is_enabled = false;
     }
 
-    // 2. Update name based on enabled provider or reset to "demoMode"
-    if (!f && !m && !t) {
-      form.name = 'demoMode';
+    // 2. Update name based on enabled provider or reset
+    if (!m && !t) {
+      form.name = '';
     } else {
-       if (m) form.name = 'Msg91';
+      if (m) form.name = 'Msg91';
       else if (t) form.name = 'Twilio';
     }
   },
