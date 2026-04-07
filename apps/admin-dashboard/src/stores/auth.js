@@ -22,6 +22,8 @@ export const useAuthStore = defineStore(
     }
     const isDemo = computed(() => demoMode.value)
 
+    const toBoolean = (value) => value === true || value === 'true'
+
     function setProfile(userData) {
       user.value.firstname = userData.firstname
       user.value.lastname = userData.lastname
@@ -48,7 +50,7 @@ export const useAuthStore = defineStore(
           user.value = {
             ...userData.user,
           }
-          demoMode.value = userData.demoMode || false
+          demoMode.value = toBoolean(userData.demoMode)
 
           localStorage.setItem('accessToken', userData.accessToken)
           localStorage.setItem('refreshToken', userData.refreshToken)
@@ -81,7 +83,7 @@ export const useAuthStore = defineStore(
           user.value.permissions = response.permissions || []
         }
         generalSettings.value = response.generalSettings || {}
-        demoMode.value = response.demoMode || false
+        demoMode.value = toBoolean(response.demoMode)
 
         return { success: true, user: user.value, generalSettings: generalSettings.value }
       } catch (error) {
