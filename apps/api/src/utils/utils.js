@@ -62,6 +62,7 @@ const sendSMS = async (phone, otp, templateId, message) => {
   // 2. Msg91 SMS
   if (provider === "msg91" && sms.msg91.is_enabled) {
     const { key, senderId } = sms.msg91;
+    const mobiles = String(targetPhone || "").replace(/[^\d]/g, "");
     const payload = {
       template_id:
         targetTemplateId || (sms.msg91.templates && sms.msg91.templates[0]?.id),
@@ -69,8 +70,9 @@ const sendSMS = async (phone, otp, templateId, message) => {
       realTimeResponse: "1",
       recipients: [
         {
-          mobiles: targetPhone,
+          mobiles,
           otp: targetMessage,
+          OTP: targetMessage,
         },
       ],
       sender: senderId,
