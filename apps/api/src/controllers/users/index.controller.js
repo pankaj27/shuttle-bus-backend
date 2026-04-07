@@ -118,7 +118,7 @@ module.exports = {
       await Utils.sendSMS(
         `${country_code}${phone}`,
         otp,
-        "6909ba5f5f6b027141397e28",
+        undefined,
         `Your OTP for ${global.DEFAULT_APPNAME || "Shuttle Bus"} is ${otp}. Please do not share this with anyone.`,
       );
 
@@ -218,7 +218,6 @@ module.exports = {
           },
         );
         const payload = {
-          templateId: "6909ba5f5f6b027141397e28",
           phone: `${updateuser.country_code ?? "91"}${phone}`,
           otp: otp,
           message: `Your OTP for ${global.DEFAULT_APPNAME || "Shuttle Bus"} is ${otp}. Please do not share this with anyone.`,

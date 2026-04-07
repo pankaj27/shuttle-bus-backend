@@ -23,7 +23,7 @@ module.exports = {
         await Utils.sendSMS(
           `${country_code}${phone}`,
           otp,
-          "6909ba5f5f6b027141397e28",
+          undefined,
           `Your OTP for ${global.DEFAULT_APPNAME || "Shuttle Bus"} (Driver) is ${otp}. Please do not share this with anyone.`,
         );
         await Driver.findByIdAndUpdate(userExist._id, { otp });
@@ -137,7 +137,7 @@ module.exports = {
         await Utils.sendSMS(
           `${updateuser.country_code}${phone}`,
           otp,
-          "6909ba5f5f6b027141397e28",
+          undefined,
           `Your OTP for ${global.DEFAULT_APPNAME || "Shuttle Bus"} (Driver) is ${otp}. Please do not share this with anyone.`,
         ); // send otp via textlocal
 
