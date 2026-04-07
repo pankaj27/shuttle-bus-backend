@@ -62,9 +62,9 @@ router.beforeEach(async (to, from, next) => {
     }, [])
 
     if (requiredPermissions.length > 0) {
-      const hasPermission = requiredPermissions.every((permission) =>
-        userPermissions.includes(permission),
-      )
+      const hasPermission =
+        userPermissions.includes('master.admin') ||
+        requiredPermissions.every((permission) => userPermissions.includes(permission))
 
       if (!hasPermission) {
         console.warn('Unauthorized access attempt to:', to.path)
