@@ -309,38 +309,59 @@ exports.get = async (req, res) => {
  * @public
  */
 exports.create = async (req, res, next) => {
-  const session = await mongoose.startSession();
-
+  let session;
+  let useTransaction = false;
   try {
     const { title, stops, status } = req.body;
-    await session.startTransaction();
+    session = await mongoose.startSession();
+    try {
+      await session.startTransaction();
+      useTransaction = true;
+    } catch (err) {
+      const message = String(err?.message || "");
+      if (message.includes("Transaction numbers are only allowed")) {
+        useTransaction = false;
+        session.endSession();
+        session = null;
+      } else {
+        throw err;
+      }
+    }
 
     // auto increment
     let lastIntegerId = 1;
-    const lastRoute = await Route.findOne({})
-      .sort({ integer_id: -1 })
-      .session(session);
+    const lastRouteQuery = Route.findOne({}).sort({ integer_id: -1 });
+    const lastRoute = useTransaction
+      ? await lastRouteQuery.session(session)
+      : await lastRouteQuery;
 
     lastIntegerId = lastRoute ? lastRoute.integer_id + 1 : 1;
 
-    const route = await new Route({
+    const routeDoc = new Route({
       title,
       status,
       integer_id: lastIntegerId,
-    }).save({ session });
+    });
+    const route = useTransaction
+      ? await routeDoc.save({ session })
+      : await routeDoc.save();
 
     await RouteStop.updateRouteStop(stops, route._id, session);
 
-    await session.commitTransaction();
-    session.endSession();
+    if (useTransaction) {
+      await session.commitTransaction();
+      session.endSession();
+    }
 
     return res.status(httpStatus.CREATED).json({
       status: true,
       message: "route created successfully",
     });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
+    if (useTransaction && session) {
+      await session.abortTransaction();
+      session.endSession();
+    }
     next(error);
   }
 };
@@ -351,11 +372,24 @@ exports.create = async (req, res, next) => {
  */
 
 exports.update = async (req, res, next) => {
-  const session = await mongoose.startSession();
+  let session;
+  let useTransaction = false;
   try {
     const { title, stops, status } = req.body;
-    // Start session
-    await session.startTransaction();
+    session = await mongoose.startSession();
+    try {
+      await session.startTransaction();
+      useTransaction = true;
+    } catch (err) {
+      const message = String(err?.message || "");
+      if (message.includes("Transaction numbers are only allowed")) {
+        useTransaction = false;
+        session.endSession();
+        session = null;
+      } else {
+        throw err;
+      }
+    }
     const routeexists = await Route.findById(req.params.routeId).exec();
     if (routeexists) {
       const objUpdate = {
@@ -372,17 +406,23 @@ exports.update = async (req, res, next) => {
         },
       );
       if (updateroute) {
-        await RouteStop.deleteMany(
-          { routeId: req.params.routeId },
-          { session },
-        );
+        if (useTransaction) {
+          await RouteStop.deleteMany(
+            { routeId: req.params.routeId },
+            { session },
+          );
+        } else {
+          await RouteStop.deleteMany({ routeId: req.params.routeId });
+        }
         await RouteStop.updateRouteStop(stops, req.params.routeId, session);
 
         // Invalidate the Redis cache
         await deleteCache(`route_stops_${req.params.routeId}`);
         // finish transcation
-        await session.commitTransaction();
-        session.endSession();
+        if (useTransaction) {
+          await session.commitTransaction();
+          session.endSession();
+        }
 
         res.status(httpStatus.CREATED);
         return res.json({
@@ -392,8 +432,10 @@ exports.update = async (req, res, next) => {
       }
     } else {
       // finish transcation
-      await session.commitTransaction();
-      session.endSession();
+      if (useTransaction) {
+        await session.commitTransaction();
+        session.endSession();
+      }
       res.status(httpStatus.OK);
       res.json({
         status: true,
@@ -402,8 +444,10 @@ exports.update = async (req, res, next) => {
     }
   } catch (error) {
     console.log("error", error);
-    await session.abortTransaction();
-    session.endSession();
+    if (useTransaction && session) {
+      await session.abortTransaction();
+      session.endSession();
+    }
     return next(error);
   }
 };

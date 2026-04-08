@@ -27,7 +27,8 @@ RouteStopSchema.index({ "stops.location": "2dsphere" });
 RouteStopSchema.statics = {
   async updateRouteStop(dataObj, routeId, session) {
     try {
-      const exists = await this.exists({ routeId }).session(session);
+      const baseExistsQuery = this.exists({ routeId });
+      const exists = session ? await baseExistsQuery.session(session) : await baseExistsQuery;
 
       const ops = dataObj.map((item) => {
         const obj = {
@@ -43,18 +44,20 @@ RouteStopSchema.statics = {
 
         // Update existing record
         if (exists && item.id) {
-          return this.findByIdAndUpdate(item.id, obj, {
+          const options = {
             returnDocument: "after",
-            session,
-          });
+          };
+          if (session) options.session = session;
+          return this.findByIdAndUpdate(item.id, obj, options);
         }
 
         // Insert or update (upsert)
-        return this.findOneAndUpdate({ routeId, stopId: obj.stopId }, obj, {
+        const options = {
           returnDocument: "after",
           upsert: true,
-          session,
-        });
+        };
+        if (session) options.session = session;
+        return this.findOneAndUpdate({ routeId, stopId: obj.stopId }, obj, options);
       });
 
       await Promise.all(ops);
