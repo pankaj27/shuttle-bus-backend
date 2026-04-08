@@ -129,7 +129,11 @@ app.use(async (req, res, next) => {
   });
 
 
-app.get('/', (req, res) => res.redirect('/v1/status'));
+app.get('/', (req, res) => {
+  res.status(200);
+  res.type('text/plain');
+  res.send('OK');
+});
 
 
 // mount api v1 routes
