@@ -61,9 +61,10 @@ const sendSMS = async (phone, otp, templateId, message) => {
   if (provider === "msg91" && sms.msg91.is_enabled) {
     const { key, senderId } = sms.msg91;
     const mobiles = String(targetPhone || "").replace(/[^\d]/g, "");
-    const businessName =
-      setting?.general?.name || global.DEFAULT_APPNAME || "Shuttle Bus";
-    const timing = String(setting?.notifications?.otp_expiry_minutes || 10);
+    // Ensure OTP variable is strictly numeric to avoid duplicating template text
+    const numericOtpSource =
+      targetOtp != null && targetOtp !== undefined ? String(targetOtp) : String(targetMessage || "");
+    const numericOtp = (numericOtpSource.match(/\d{4,8}/) || [numericOtpSource.replace(/\D/g, "")])[0];
     const payload = {
       template_id:
         targetTemplateId || (sms.msg91.templates && sms.msg91.templates[0]?.id),
@@ -72,11 +73,9 @@ const sendSMS = async (phone, otp, templateId, message) => {
       recipients: [
         {
           mobiles,
-          otp: targetMessage,
-          OTP: targetMessage,
-          businessName,
-          timing,
-          autodetect: "1",
+          // Match your MSG91 Flow variable for OTP. Most commonly 'OTP'.
+          // If your Flow uses a different name, change 'OTP' accordingly.
+          OTP: numericOtp,
         },
       ],
       sender: senderId,
