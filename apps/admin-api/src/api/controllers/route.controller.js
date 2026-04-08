@@ -8,6 +8,13 @@ const RouteStop = require("../models/routeStop.model");
 const BusSchedule = require("../models/busSchedule.model");
 const { getCache, setCache, deleteCache } = require("../utils/cache");
 
+const isTxnNotSupported = (err) => {
+  const message = String(err?.message || "");
+  return message.includes(
+    "Transaction numbers are only allowed on a replica set member or mongos",
+  );
+};
+
 exports.load = async (req, res) => {
   try {
     const condition =
@@ -309,31 +316,13 @@ exports.get = async (req, res) => {
  * @public
  */
 exports.create = async (req, res, next) => {
-  let session;
-  let useTransaction = false;
-  try {
-    const { title, stops, status } = req.body;
-    session = await mongoose.startSession();
-    try {
-      await session.startTransaction();
-      useTransaction = true;
-    } catch (err) {
-      const message = String(err?.message || "");
-      if (message.includes("Transaction numbers are only allowed")) {
-        useTransaction = false;
-        session.endSession();
-        session = null;
-      } else {
-        throw err;
-      }
-    }
+  const { title, stops, status } = req.body;
 
-    // auto increment
+  const execute = async (session) => {
     let lastIntegerId = 1;
-    const lastRouteQuery = Route.findOne({}).sort({ integer_id: -1 });
-    const lastRoute = useTransaction
-      ? await lastRouteQuery.session(session)
-      : await lastRouteQuery;
+    let lastRouteQuery = Route.findOne({}).sort({ integer_id: -1 });
+    if (session) lastRouteQuery = lastRouteQuery.session(session);
+    const lastRoute = await lastRouteQuery;
 
     lastIntegerId = lastRoute ? lastRoute.integer_id + 1 : 1;
 
@@ -342,27 +331,33 @@ exports.create = async (req, res, next) => {
       status,
       integer_id: lastIntegerId,
     });
-    const route = useTransaction
-      ? await routeDoc.save({ session })
-      : await routeDoc.save();
+    const route = session ? await routeDoc.save({ session }) : await routeDoc.save();
 
     await RouteStop.updateRouteStop(stops, route._id, session);
+  };
 
-    if (useTransaction) {
-      await session.commitTransaction();
+  try {
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => execute(session));
+    } finally {
       session.endSession();
     }
-
     return res.status(httpStatus.CREATED).json({
       status: true,
       message: "route created successfully",
     });
   } catch (error) {
-    if (useTransaction && session) {
-      await session.abortTransaction();
-      session.endSession();
+    if (!isTxnNotSupported(error)) return next(error);
+    try {
+      await execute(null);
+      return res.status(httpStatus.CREATED).json({
+        status: true,
+        message: "route created successfully",
+      });
+    } catch (fallbackError) {
+      return next(fallbackError);
     }
-    next(error);
   }
 };
 
@@ -372,83 +367,79 @@ exports.create = async (req, res, next) => {
  */
 
 exports.update = async (req, res, next) => {
-  let session;
-  let useTransaction = false;
-  try {
-    const { title, stops, status } = req.body;
-    session = await mongoose.startSession();
-    try {
-      await session.startTransaction();
-      useTransaction = true;
-    } catch (err) {
-      const message = String(err?.message || "");
-      if (message.includes("Transaction numbers are only allowed")) {
-        useTransaction = false;
-        session.endSession();
-        session = null;
-      } else {
-        throw err;
-      }
+  const { title, stops, status } = req.body;
+
+  const execute = async (session) => {
+    let routeQuery = Route.findById(req.params.routeId);
+    if (session) routeQuery = routeQuery.session(session);
+    const routeexists = await routeQuery;
+
+    if (!routeexists) {
+      return { found: false };
     }
-    const routeexists = await Route.findById(req.params.routeId).exec();
-    if (routeexists) {
-      const objUpdate = {
-        title,
-        status,
-      };
-      const updateroute = await Route.findByIdAndUpdate(
-        req.params.routeId,
-        {
-          $set: objUpdate,
-        },
-        {
-          new: true,
-        },
-      );
-      if (updateroute) {
-        if (useTransaction) {
-          await RouteStop.deleteMany(
-            { routeId: req.params.routeId },
-            { session },
-          );
-        } else {
-          await RouteStop.deleteMany({ routeId: req.params.routeId });
-        }
-        await RouteStop.updateRouteStop(stops, req.params.routeId, session);
 
-        // Invalidate the Redis cache
-        await deleteCache(`route_stops_${req.params.routeId}`);
-        // finish transcation
-        if (useTransaction) {
-          await session.commitTransaction();
-          session.endSession();
-        }
+    const objUpdate = {
+      title,
+      status,
+    };
 
-        res.status(httpStatus.CREATED);
-        return res.json({
-          status: true,
-          message: "route updated successfully",
-        });
-      }
+    const updateOptions = { new: true };
+    if (session) updateOptions.session = session;
+    const updateroute = await Route.findByIdAndUpdate(
+      req.params.routeId,
+      { $set: objUpdate },
+      updateOptions,
+    );
+
+    if (!updateroute) {
+      return { found: false };
+    }
+
+    if (session) {
+      await RouteStop.deleteMany({ routeId: req.params.routeId }).session(session);
     } else {
-      // finish transcation
-      if (useTransaction) {
-        await session.commitTransaction();
-        session.endSession();
-      }
+      await RouteStop.deleteMany({ routeId: req.params.routeId });
+    }
+
+    await RouteStop.updateRouteStop(stops, req.params.routeId, session);
+    await deleteCache(`route_stops_${req.params.routeId}`);
+    return { found: true };
+  };
+
+  const respond = (result) => {
+    if (!result?.found) {
       res.status(httpStatus.OK);
-      res.json({
+      return res.json({
         status: true,
         message: "No route found.",
       });
     }
-  } catch (error) {
-    console.log("error", error);
-    if (useTransaction && session) {
-      await session.abortTransaction();
+    res.status(httpStatus.CREATED);
+    return res.json({
+      status: true,
+      message: "route updated successfully",
+    });
+  };
+
+  try {
+    const session = await mongoose.startSession();
+    let result;
+    try {
+      await session.withTransaction(async () => {
+        result = await execute(session);
+      });
+    } finally {
       session.endSession();
     }
-    return next(error);
+    return respond(result);
+  } catch (error) {
+    if (!isTxnNotSupported(error)) return next(error);
+    try {
+      const result = await execute(null);
+      return respond(result);
+    } catch (fallbackError) {
+      return next(fallbackError);
+    }
   }
 };
 

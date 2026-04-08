@@ -31,10 +31,12 @@ BusScheduleLocationSchema.statics = {
           departure_time: s.departure_time,
         };
 
+        const options = { upsert: true };
+        if (session) options.session = session;
         return this.updateOne(
           { busScheduleId: scheduleId, stopId: s.stopId },
           { $set: updateData },
-          { upsert: true, session },
+          options,
         );
       });
 
