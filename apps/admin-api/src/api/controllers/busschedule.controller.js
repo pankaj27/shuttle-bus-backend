@@ -5,6 +5,13 @@ const moment = require("moment-timezone");
 const BusSchedule = require("../models/busSchedule.model");
 const busScheduleLocation = require("../models/busScheduleLocation.model");
 
+const isTxnNotSupported = (err) => {
+  const message = String(err?.message || "");
+  return message.includes(
+    "Transaction numbers are only allowed on a replica set member or mongos",
+  );
+};
+
 exports.search = async (req, res, next) => {
   try {
     const { search } = req.query;
@@ -464,52 +471,81 @@ exports.get = async (req, res) => {
  * @public
  */
 exports.create = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  const { every, routeId, busId, start_date, end_date, stops, status } =
+    req.body;
 
-  try {
-    const { every, routeId, busId, start_date, end_date, stops, status } =
-      req.body;
-
+  const execute = async (session) => {
     const departureTime = stops.map((stop) => stop.departure_time);
     const arrivalTime = stops.map((stop) => stop.arrival_time);
     const departTime = departureTime[0];
     const arriveTime = arrivalTime[arrivalTime.length - 1];
 
-    const busSchedule = await BusSchedule.create(
-      [
-        {
-          every,
-          routeId,
-          busId,
-          operatorId: req.user._id,
-          start_date,
-          end_date,
-          status,
-          departure_time: departTime,
-          arrival_time: arriveTime,
-        },
-      ],
-      { session },
-    );
+    let busSchedule;
+    if (session) {
+      busSchedule = await BusSchedule.create(
+        [
+          {
+            every,
+            routeId,
+            busId,
+            operatorId: req.user._id,
+            start_date,
+            end_date,
+            status,
+            departure_time: departTime,
+            arrival_time: arriveTime,
+          },
+        ],
+        { session },
+      );
+    } else {
+      const created = await BusSchedule.create({
+        every,
+        routeId,
+        busId,
+        operatorId: req.user._id,
+        start_date,
+        end_date,
+        status,
+        departure_time: departTime,
+        arrival_time: arriveTime,
+      });
+      busSchedule = [created];
+    }
 
     const scheduleId = busSchedule[0]._id;
-
-    // IMPORTANT: must pass session to your custom function
     await busScheduleLocation.createOrUpdate(scheduleId, stops, session);
+  };
 
-    await session.commitTransaction();
-    session.endSession();
-
+  try {
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => execute(session));
+    } finally {
+      session.endSession();
+    }
     return res.status(httpStatus.CREATED).json({
       status: true,
       message: "bus schedule create successfully",
     });
   } catch (error) {
-    console.log(error);
-    await session.abortTransaction();
-    session.endSession();
-    return res.status(500).json({ status: false, error });
+    if (!isTxnNotSupported(error)) {
+      return res
+        .status(httpStatus.INTERNAL_SERVER_ERROR)
+        .json({ status: false, message: error?.message || "Failed to create" });
+    }
+    try {
+      await execute(null);
+      return res.status(httpStatus.CREATED).json({
+        status: true,
+        message: "bus schedule create successfully",
+      });
+    } catch (fallbackError) {
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        status: false,
+        message: fallbackError?.message || "Failed to create",
+      });
+    }
   }
 };
 
@@ -518,25 +554,16 @@ exports.create = async (req, res) => {
  * @public
  */
 exports.update = async (req, res, next) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  const { every, routeId, busId, start_date, end_date, stops, status } =
+    req.body;
 
-  try {
-    const { every, routeId, busId, start_date, end_date, stops, status } =
-      req.body;
-
-    const busSchedule = await BusSchedule.findById(
-      req.params.busScheduleId,
-    ).session(session);
+  const execute = async (session) => {
+    let busScheduleQuery = BusSchedule.findById(req.params.busScheduleId);
+    if (session) busScheduleQuery = busScheduleQuery.session(session);
+    const busSchedule = await busScheduleQuery;
 
     if (!busSchedule) {
-      await session.abortTransaction();
-      session.endSession();
-
-      return res.status(httpStatus.NOT_FOUND).json({
-        status: false,
-        message: "Bus schedule not found",
-      });
+      return { found: false };
     }
 
     const departureTime = stops.map((stop) => stop.departure_time);
@@ -555,36 +582,66 @@ exports.update = async (req, res, next) => {
       arrival_time: arriveTime,
     };
 
+    const updateOptions = { new: true };
+    if (session) updateOptions.session = session;
+
     await BusSchedule.findByIdAndUpdate(
       req.params.busScheduleId,
       { $set: updateObj },
-      { new: true, session },
+      updateOptions,
     );
 
-    // IMPORTANT: pass session
-    await busScheduleLocation
-      .deleteMany({
+    if (session) {
+      await busScheduleLocation
+        .deleteMany({ busScheduleId: req.params.busScheduleId })
+        .session(session);
+    } else {
+      await busScheduleLocation.deleteMany({
         busScheduleId: req.params.busScheduleId,
-      })
-      .session(session);
+      });
+    }
+
     await busScheduleLocation.createOrUpdate(
       req.params.busScheduleId,
       stops,
       session,
     );
 
-    await session.commitTransaction();
-    session.endSession();
+    return { found: true };
+  };
 
+  const respond = (result) => {
+    if (!result?.found) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        status: false,
+        message: "Bus schedule not found",
+      });
+    }
     return res.status(httpStatus.OK).json({
       status: true,
       message: "Bus schedule updated successfully",
     });
+  };
+
+  try {
+    const session = await mongoose.startSession();
+    let result;
+    try {
+      await session.withTransaction(async () => {
+        result = await execute(session);
+      });
+    } finally {
+      session.endSession();
+    }
+    return respond(result);
   } catch (error) {
-    console.log("error", error);
-    await session.abortTransaction();
-    session.endSession();
-    return next(error);
+    if (!isTxnNotSupported(error)) return next(error);
+    try {
+      const result = await execute(null);
+      return respond(result);
+    } catch (fallbackError) {
+      return next(fallbackError);
+    }
   }
 };
 
