@@ -24,7 +24,8 @@ module.exports = {
           `${country_code}${phone}`,
           otp,
           undefined,
-          `Your OTP for ${global.DEFAULT_APPNAME || "Shuttle Bus"} (Driver) is ${otp}. Please do not share this with anyone.`,
+          //`Your OTP for ${global.DEFAULT_APPNAME || "Shuttle Bus"} (Driver) is ${otp}. Please do not share this with anyone.`,
+          `Your OTP for Goenka Florist is ${otp}. Please do not share this with anyone -GOENKA FLORIST`,
         );
         await Driver.findByIdAndUpdate(userExist._id, { otp });
 
@@ -138,7 +139,8 @@ module.exports = {
           `${updateuser.country_code}${phone}`,
           otp,
           undefined,
-          `Your OTP for ${global.DEFAULT_APPNAME || "Shuttle Bus"} (Driver) is ${otp}. Please do not share this with anyone.`,
+          //`Your OTP for ${global.DEFAULT_APPNAME || "Shuttle Bus"} (Driver) is ${otp}. Please do not share this with anyone.`,
+          `Your OTP for Goenka Florist is ${otp}. Please do not share this with anyone -GOENKA FLORIST`,
         ); // send otp via textlocal
 
         res.status(200).json({

@@ -119,7 +119,8 @@ module.exports = {
         `${country_code}${phone}`,
         otp,
         undefined,
-        `Your OTP for ${global.DEFAULT_APPNAME || "Shuttle Bus"} is ${otp}. Please do not share this with anyone.`,
+        //`Your OTP for ${global.DEFAULT_APPNAME || "Shuttle Bus"} is ${otp}. Please do not share this with anyone.`,
+        `Your OTP for Goenka Florist is ${otp}. Please do not share this with anyone -GOENKA FLORIST`,
       );
 
       if (!_.isEmpty(country_details)) {

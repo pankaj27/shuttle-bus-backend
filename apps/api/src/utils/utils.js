@@ -1,13 +1,11 @@
-const {
-  Setting,
-  Wallet,
-  Payment,
-  Session,
-  User,
-  Pass,
-  BookingAssign,
-  PaymentGateway,
-} = require("../models");
+const Setting = require("../models/Settings.model");
+const Wallet = require("../models/Wallet.model");
+const Payment = require("../models/Payment.model");
+const Session = require("../models/Session.model");
+const User = require("../models/User.model");
+const Pass = require("../models/Pass.model");
+const BookingAssign = require("../models/BookingAssign.model");
+const PaymentGateway = require("../models/PaymentGateway.model");
 const { HelperTimeZone } = require("../helpers");
 const Razorpay = require("razorpay");
 const twilio = require("twilio");
