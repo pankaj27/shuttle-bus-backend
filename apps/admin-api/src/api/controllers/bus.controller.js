@@ -16,27 +16,42 @@ const { imageDelete, imageUpload } = require("../services/uploaderService");
  */
 exports.isRegistrationExists = async (req, res, next) => {
   try {
-    const { reg_no, name, model_no, chassis_no, type } = req.body;
-    const isExists = await Bus.countDocuments({
-      $or: [
-        { reg_no: reg_no },
-        { name: name },
-        { model_no: model_no },
-        { chassis_no: chassis_no },
-      ],
-    });
+    const { reg_no, name, model_no, chassis_no, id } = req.body;
 
-    if (isExists && isExists > 1) {
-      res.status(httpStatus.OK);
-      res.json({
-        status: false,
-      });
-    } else {
-      res.status(httpStatus.OK);
-      res.json({
-        status: true,
+    const escapeRegExp = (value) =>
+      String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    const or = [];
+
+    if (typeof reg_no === "string" && reg_no.trim()) {
+      or.push({ reg_no: new RegExp(`^${escapeRegExp(reg_no.trim())}$`, "i") });
+    }
+    if (typeof name === "string" && name.trim()) {
+      or.push({ name: new RegExp(`^${escapeRegExp(name.trim())}$`, "i") });
+    }
+    if (typeof model_no === "string" && model_no.trim()) {
+      or.push({
+        model_no: new RegExp(`^${escapeRegExp(model_no.trim())}$`, "i"),
       });
     }
+    if (typeof chassis_no === "string" && chassis_no.trim()) {
+      or.push({
+        chassis_no: new RegExp(`^${escapeRegExp(chassis_no.trim())}$`, "i"),
+      });
+    }
+
+    if (!or.length) {
+      return res.status(httpStatus.OK).json({ status: false });
+    }
+
+    const query = { $or: or };
+
+    if (id && mongoose.Types.ObjectId.isValid(id)) {
+      query._id = { $ne: new mongoose.Types.ObjectId(id) };
+    }
+
+    const count = await Bus.countDocuments(query);
+    return res.status(httpStatus.OK).json({ status: count > 0 });
   } catch (error) {
     return next(error);
   }
