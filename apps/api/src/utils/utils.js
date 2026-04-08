@@ -63,6 +63,9 @@ const sendSMS = async (phone, otp, templateId, message) => {
   if (provider === "msg91" && sms.msg91.is_enabled) {
     const { key, senderId } = sms.msg91;
     const mobiles = String(targetPhone || "").replace(/[^\d]/g, "");
+    const businessName =
+      setting?.general?.name || global.DEFAULT_APPNAME || "Shuttle Bus";
+    const timing = String(setting?.notifications?.otp_expiry_minutes || 10);
     const payload = {
       template_id:
         targetTemplateId || (sms.msg91.templates && sms.msg91.templates[0]?.id),
@@ -73,6 +76,9 @@ const sendSMS = async (phone, otp, templateId, message) => {
           mobiles,
           otp: targetMessage,
           OTP: targetMessage,
+          businessName,
+          timing,
+          autodetect: "1",
         },
       ],
       sender: senderId,
