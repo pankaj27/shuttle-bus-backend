@@ -29,34 +29,49 @@ exports.testData = (req, res) => {
  */
 exports.isDriverExists = async (req, res, next) => {
   try {
-    const { name, id } = req.body;
-    if (name && name != "") {
-      const isExists = await Driver.findOne({
-        $or: [
-          { national_id: { $regex: new RegExp(name), $options: "i" } },
-          { phone: { $regex: new RegExp(name), $options: "i" } },
-          { email: { $regex: new RegExp(name), $options: "i" } },
-        ],
-        _id: { $nin: [new mongoose.Types.ObjectId(id)] },
-      });
-      console.log(`isExists : phone`, isExists);
-      if (isExists) {
-        res.status(httpStatus.OK);
-        res.json({
-          status: false,
-        });
-      } else {
-        res.status(httpStatus.OK);
-        res.json({
-          status: true,
-        });
-      }
-    } else {
-      res.status(httpStatus.OK);
-      res.json({
-        status: true,
+    const { id, name, email, phone, national_id } = req.body;
+
+    const escapeRegExp = (value) =>
+      String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    const or = [];
+
+    const trimmedName = typeof name === "string" ? name.trim() : "";
+    if (trimmedName) {
+      const rx = new RegExp(escapeRegExp(trimmedName), "i");
+      or.push({ national_id: { $regex: rx } });
+      or.push({ phone: { $regex: rx } });
+      or.push({ email: { $regex: rx } });
+    }
+
+    if (typeof national_id === "string" && national_id.trim()) {
+      or.push({
+        national_id: new RegExp(`^${escapeRegExp(national_id.trim())}$`, "i"),
       });
     }
+
+    if (typeof email === "string" && email.trim()) {
+      or.push({ email: new RegExp(`^${escapeRegExp(email.trim())}$`, "i") });
+    }
+
+    if (typeof phone === "string" && phone.trim()) {
+      const normalizedPhone = phone.replace(/[^\d]/g, "");
+      if (normalizedPhone) {
+        or.push({ phone: new RegExp(`${escapeRegExp(normalizedPhone)}$`) });
+      }
+    }
+
+    if (!or.length) {
+      return res.status(httpStatus.OK).json({ status: false });
+    }
+
+    const query = { $or: or };
+    if (id && mongoose.Types.ObjectId.isValid(id)) {
+      query._id = { $ne: new mongoose.Types.ObjectId(id) };
+    }
+
+    const exists = await Driver.exists(query);
+    return res.status(httpStatus.OK).json({ status: !!exists });
   } catch (error) {
     return next(error);
   }
