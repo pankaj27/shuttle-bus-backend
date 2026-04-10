@@ -15,6 +15,15 @@ const isTxnNotSupported = (err) => {
   );
 };
 
+const deriveLocationIdFromStops = (stops) => {
+  if (!Array.isArray(stops) || stops.length === 0) return null;
+  const sorted = stops
+    .filter((s) => s && s.stopId)
+    .slice()
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  return sorted[0]?.stopId || null;
+};
+
 exports.load = async (req, res) => {
   try {
     const condition =
@@ -316,7 +325,7 @@ exports.get = async (req, res) => {
  * @public
  */
 exports.create = async (req, res, next) => {
-  const { title, stops, status } = req.body;
+  const { title, stops, status, busId } = req.body;
 
   const execute = async (session) => {
     let lastIntegerId = 1;
@@ -330,6 +339,8 @@ exports.create = async (req, res, next) => {
       title,
       status,
       integer_id: lastIntegerId,
+      locationId: deriveLocationIdFromStops(stops),
+      busId: busId || undefined,
     });
     const route = session ? await routeDoc.save({ session }) : await routeDoc.save();
 
@@ -367,7 +378,7 @@ exports.create = async (req, res, next) => {
  */
 
 exports.update = async (req, res, next) => {
-  const { title, stops, status } = req.body;
+  const { title, stops, status, busId } = req.body;
 
   const execute = async (session) => {
     let routeQuery = Route.findById(req.params.routeId);
@@ -382,6 +393,9 @@ exports.update = async (req, res, next) => {
       title,
       status,
     };
+    const derivedLocationId = deriveLocationIdFromStops(stops);
+    if (derivedLocationId) objUpdate.locationId = derivedLocationId;
+    if (busId) objUpdate.busId = busId;
 
     const updateOptions = { new: true };
     if (session) updateOptions.session = session;

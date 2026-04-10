@@ -17,9 +17,32 @@ mongoose.set("strictQuery", true);
 
 exports.connect = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, { autoIndex: false });
+    const mongoUri =
+      process.env.MONGO_URI ||
+      process.env.MONGO_DB_LOCAL ||
+      (process.env.MONGO_HOST && process.env.MONGO_DB
+        ? `mongodb+srv://${process.env.MONGO_USERNAME}:${encodeURIComponent(
+            process.env.MONGO_PASSWORD || "",
+          )}@${process.env.MONGO_HOST}/${process.env.MONGO_DB}?authSource=admin${
+            process.env.MONGO_RS ? `&replicaSet=${process.env.MONGO_RS}` : ""
+          }`
+        : null);
+
+    if (!mongoUri) {
+      throw new Error(
+        "Missing MongoDB connection string. Set MONGO_URI (recommended) or MONGO_DB_LOCAL or (MONGO_HOST + MONGO_DB).",
+      );
+    }
+
+    await mongoose.connect(mongoUri, { autoIndex: false });
 
     console.log("MongoDB connected...");
+
+    try {
+      await mongoose.connection.collection("locations").createIndex({ location: "2dsphere" });
+    } catch (indexErr) {
+      console.error("Failed to ensure 2dsphere index on locations.location", indexErr);
+    }
   } catch (err) {
     console.error("MongoDB initial connection failed", err);
     process.exit(1); // 🔴 triggers Docker restart

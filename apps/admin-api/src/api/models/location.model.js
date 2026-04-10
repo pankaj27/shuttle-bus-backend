@@ -32,7 +32,7 @@ const locationSchema = new mongoose.Schema(
   }
 );
 
-locationSchema.index("location");
+locationSchema.index({ location: "2dsphere" });
 
 /**
  * Methods

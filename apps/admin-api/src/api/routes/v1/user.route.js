@@ -41,5 +41,12 @@ router
     controller.removePermanently,
   );
 
+router
+  .route("/:userId/permanently-delete")
+  .delete(
+    getAuth("customer.delete", "master.admin"),
+    controller.removePermanently,
+  );
+
 
 module.exports = router;

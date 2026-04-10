@@ -230,61 +230,69 @@ exports.replace = async (req, res, next) => {
  */
 exports.list = async (req, res, next) => {
   try {
-    let condition = req.query.search
+    const contactCondition = [{ phone: { $ne: "" } }, { email: { $ne: "" } }];
+    const searchCondition = req.query.search
       ? {
-          $or: [
-            {
-              wallet_balance: {
-                $regex:
-                  "(s+" + req.query.search + "|^" + req.query.search + ")",
-                $options: "i",
-              },
-            },
-            {
-              fullname: {
-                $regex:
-                  "(s+" + req.query.search + "|^" + req.query.search + ")",
-                $options: "i",
-              },
-            },
-            {
-              email: {
-                $regex:
-                  "(s+" + req.query.search + "|^" + req.query.search + ")",
-                $options: "i",
-              },
-            },
-            {
-              phone: {
-                $regex:
-                  "(s+" + req.query.search + "|^" + req.query.search + ")",
-                $options: "i",
-              },
-            },
-            {
-              gender: {
-                $regex:
-                  "(s+" + req.query.search + "|^" + req.query.search + ")",
-                $options: "i",
-              },
-            },
-            {
-              refercode: {
-                $regex:
-                  "(s+" + req.query.search + "|^" + req.query.search + ")",
-                $options: "i",
-              },
-            },
-          ],
           is_deleted: req.query.is_deleted,
-          phone: { $ne: "" },
-          email: { $ne: "" },
+          $and: [
+            {
+              $or: [
+                {
+                  wallet_balance: {
+                    $regex:
+                      "(s+" + req.query.search + "|^" + req.query.search + ")",
+                    $options: "i",
+                  },
+                },
+                {
+                  fullname: {
+                    $regex:
+                      "(s+" + req.query.search + "|^" + req.query.search + ")",
+                    $options: "i",
+                  },
+                },
+                {
+                  email: {
+                    $regex:
+                      "(s+" + req.query.search + "|^" + req.query.search + ")",
+                    $options: "i",
+                  },
+                },
+                {
+                  phone: {
+                    $regex:
+                      "(s+" + req.query.search + "|^" + req.query.search + ")",
+                    $options: "i",
+                  },
+                },
+                {
+                  gender: {
+                    $regex:
+                      "(s+" + req.query.search + "|^" + req.query.search + ")",
+                    $options: "i",
+                  },
+                },
+                {
+                  refercode: {
+                    $regex:
+                      "(s+" + req.query.search + "|^" + req.query.search + ")",
+                    $options: "i",
+                  },
+                },
+              ],
+            },
+            { $or: contactCondition },
+          ],
         }
       : {
           is_deleted: req.query.is_deleted,
-          phone: { $ne: "" },
-          email: { $ne: "" },
+          $or: contactCondition,
         };
+
+    let statusMatch = { $in: [true, false] };
+    if (req.query.type === "active") statusMatch = true;
+    else if (req.query.type === "inactive") statusMatch = false;
+    else if (typeof req.query.status === "boolean") statusMatch = req.query.status;
 
     let sort = {};
     if (req.query.sortBy != "" && req.query.sortDesc != "") {
@@ -311,7 +319,7 @@ exports.list = async (req, res, next) => {
         },
       },
       {
-        $unwind: "$wallet",
+        $unwind: { path: "$wallet", preserveNullAndEmptyArrays: true },
       },
       {
         $project: {
@@ -331,18 +339,16 @@ exports.list = async (req, res, next) => {
           status: 1,
           picture: "$ProfilePic",
           wallet_balance: {
-            $ifNull: [
-              {
-                $concat: [DEFAULT_CURRENCY, { $toString: "$wallet.amount" }],
-              },
-              0,
+            $concat: [
+              DEFAULT_CURRENCY,
+              { $toString: { $ifNull: ["$wallet.amount", 0] } },
             ],
           },
           walletId: { $ifNull: ["$wallet._id", null] },
         },
       },
       {
-        $match: condition,
+        $match: searchCondition,
       },
       {
         $match: dateRange,
@@ -350,18 +356,16 @@ exports.list = async (req, res, next) => {
       {
         $match: {
           status:
-            req.query.type == "all"
+            req.query.type === "all" || req.query.type === "deleted"
               ? { $in: [true, false] }
-              : req.query.type == "deleted"
-                ? { $in: [true, false] }
-                : false,
+              : statusMatch,
         },
       },
     ]);
 
     const options = {
       page: req.query.page || 1,
-      limit: req.query.per_page || 10,
+      limit: req.query.limit || req.query.per_page || 10,
       collation: { locale: "en" },
       customLabels: {
         totalDocs: "totalRecords",

@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const moment = require("moment-timezone");
 const BusSchedule = require("../models/busSchedule.model");
 const busScheduleLocation = require("../models/busScheduleLocation.model");
+const Route = require("../models/route.model");
+const RouteStop = require("../models/routeStop.model");
 
 const isTxnNotSupported = (err) => {
   const message = String(err?.message || "");
@@ -515,6 +517,22 @@ exports.create = async (req, res) => {
 
     const scheduleId = busSchedule[0]._id;
     await busScheduleLocation.createOrUpdate(scheduleId, stops, session);
+
+    let routeQuery = Route.findById(routeId);
+    if (session) routeQuery = routeQuery.session(session);
+    const route = await routeQuery;
+    if (route) {
+      let firstStopQuery = RouteStop.findOne({ routeId }).sort({ order: 1 }).select({ stopId: 1 });
+      if (session) firstStopQuery = firstStopQuery.session(session);
+      const firstStop = await firstStopQuery;
+
+      const set = { busId };
+      if (!route.locationId && firstStop?.stopId) set.locationId = firstStop.stopId;
+
+      const updateOptions = {};
+      if (session) updateOptions.session = session;
+      await Route.updateOne({ _id: routeId }, { $set: set }, updateOptions);
+    }
   };
 
   try {
@@ -606,6 +624,22 @@ exports.update = async (req, res, next) => {
       stops,
       session,
     );
+
+    let routeQuery = Route.findById(routeId);
+    if (session) routeQuery = routeQuery.session(session);
+    const route = await routeQuery;
+    if (route) {
+      let firstStopQuery = RouteStop.findOne({ routeId }).sort({ order: 1 }).select({ stopId: 1 });
+      if (session) firstStopQuery = firstStopQuery.session(session);
+      const firstStop = await firstStopQuery;
+
+      const set = { busId };
+      if (!route.locationId && firstStop?.stopId) set.locationId = firstStop.stopId;
+
+      const updateOptions = {};
+      if (session) updateOptions.session = session;
+      await Route.updateOne({ _id: routeId }, { $set: set }, updateOptions);
+    }
 
     return { found: true };
   };

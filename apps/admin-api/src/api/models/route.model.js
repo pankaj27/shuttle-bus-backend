@@ -12,7 +12,9 @@ const paginateAggregate = require('mongoose-aggregate-paginate-v2');
 const RouteSchema = new Schema(
 {
     integer_id:{type:Number,default:1,unique:true},
+    locationId: { type: ObjectId, ref: "Location" },
     title: { type: String, required: true },
+    busId: { type: ObjectId, ref: "Bus" },
     status: { type: Boolean, default: true },
   },
   { timestamps: true },

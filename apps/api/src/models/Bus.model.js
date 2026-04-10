@@ -8,7 +8,12 @@ const busSchema = new mongoose.Schema({
     adminId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Admin",
-        required: true,
+        required: false,
+      },
+      operatorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Admin",
+        required: false,
       },
       bustypeId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -17,7 +22,7 @@ const busSchema = new mongoose.Schema({
       },
       buslayoutId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "bus_layout"
+        ref: "Bus_Layout"
       },
      code:{type:String,default:'B007'},
       name: {

@@ -8,9 +8,9 @@ const { ObjectId } = Schema;
 
 const RouteSchema = new Schema(
   {
-    locationId: { type: ObjectId, ref: "Location", required: true },
+    locationId: { type: ObjectId, ref: "Location" },
     title: { type: String, required: true },
-    busId: { type: ObjectId, ref: "Bus", required: true },
+    busId: { type: ObjectId, ref: "Bus" },
     status: { type: Boolean, default: true },
   },
   { timestamps: true },
@@ -47,7 +47,7 @@ RouteSchema.set("toObject", { virtual: true });
 RouteSchema.set("toJSON", { virtual: true });
 
 RouteSchema.statics = {
-  transformData(rows) {
+  transformAdminList(rows) {
     const selectableItems = [];
     let i = 1;
     rows.forEach((item) => {
@@ -55,10 +55,12 @@ RouteSchema.statics = {
         id: i++,
         ids: item.id,
         title: item.title,
-        busname: item.busId.name,
-        location_name: item.locationId.name,
-        location_type: item.locationId.type,
-        status: item.is_active == true ? "Active" : "Inactive",
+        busname: item.busId ? item.busId.name : "",
+        location_name: item.locationId
+          ? item.locationId.name || item.locationId.title || ""
+          : "",
+        location_type: item.locationId ? item.locationId.type || "" : "",
+        status: item.status ? "Active" : "Inactive",
         createdAt: moment
           .utc(item.createdAt)
           .tz("Asia/Kolkata")
@@ -76,7 +78,7 @@ RouteSchema.statics = {
       .limit(perPage)
       .exec();
   },
-  transformData(data) {
+  transformLocationData(data) {
     const selectableItems = [];
     data.forEach((item) => {
       selectableItems.push({
