@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, computed } from 'vue';
+import { reactive, onMounted, computed, ref } from 'vue';
 import LucideIcon from '@/components/LucideIcon.vue';
 import { useSettings } from '@/composables/useSettings';
 import { useAuthStore } from '@/stores/auth';
@@ -17,14 +17,46 @@ const form = reactive({
   otp_validation_via: false,
   firebase_database_url: '',
   firebase_key: null,
+  firebase_credential: null,
 });
+
+const firebaseCredentialFileInput = ref(null);
+const firebaseCredentialFileName = ref('');
 
 onMounted(async () => {
   const data = await fetchSettings('notifications');
   if (data) {
     Object.assign(form, data);
+    if (data.firebase_credential) {
+      firebaseCredentialFileName.value = 'Credentials configured';
+    }
   }
 });
+
+const openFirebaseCredentialPicker = () => {
+  if (authStore.isDemo) return;
+  firebaseCredentialFileInput.value?.click();
+};
+
+const onFirebaseCredentialSelected = async (e) => {
+  const file = e?.target?.files?.[0];
+  if (!file) return;
+  firebaseCredentialFileName.value = file.name;
+
+  try {
+    const text = await file.text();
+    form.firebase_credential = JSON.parse(text);
+  } catch (err) {
+    form.firebase_credential = null;
+    firebaseCredentialFileName.value = '';
+    Modal.error({
+      title: 'Invalid JSON',
+      content: 'Please upload a valid Firebase Admin SDK JSON file.',
+    });
+  } finally {
+    if (firebaseCredentialFileInput.value) firebaseCredentialFileInput.value.value = '';
+  }
+};
 
 const handleSave = async () => {
   if (authStore.isDemo) {
@@ -74,13 +106,27 @@ const handleSave = async () => {
         </a-form-item>
 
         <a-form-item label="Firebase Admin SDK (JSON)">
-          <div class="upload-zone group" :class="{ 'opacity-50 cursor-not-allowed pointer-events-none': authStore.isDemo }">
+          <input
+            ref="firebaseCredentialFileInput"
+            type="file"
+            accept="application/json,.json"
+            class="hidden"
+            @change="onFirebaseCredentialSelected"
+          />
+          <div
+            class="upload-zone group"
+            :class="{ 'opacity-50 cursor-not-allowed pointer-events-none': authStore.isDemo }"
+            @click="openFirebaseCredentialPicker"
+          >
             <div class="upload-preview">
               <LucideIcon name="FileJson" class="text-gray-300" :size="32" />
             </div>
             <div>
               <p class="font-bold text-gray-700">Upload Credentials</p>
               <p class="text-xs text-gray-500 mt-1">Generate private key from Firebase Console.</p>
+              <p v-if="firebaseCredentialFileName" class="text-xs text-gray-600 mt-2">
+                {{ firebaseCredentialFileName }}
+              </p>
             </div>
           </div>
         </a-form-item>
