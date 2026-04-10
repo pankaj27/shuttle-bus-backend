@@ -222,7 +222,7 @@ const handleSubmit = async () => {
     }
 
     const response = await paymentGatewayService.update(currentSite.value, payload)
-    if (response.status) {
+    if (response?.status === true) {
       message.success(`${currentSite.value} updated successfully`)
       isModalOpen.value = false
       refreshAllStatus()
@@ -230,7 +230,7 @@ const handleSubmit = async () => {
       message.error(response.message || 'Update failed')
     }
   } catch (err) {
-    message.error('An unexpected error occurred')
+    message.error(err?.response?.data?.message || err?.message || 'An unexpected error occurred')
   } finally {
     submitLoading.value = false
   }

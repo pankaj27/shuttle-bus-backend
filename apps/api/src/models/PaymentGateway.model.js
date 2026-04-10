@@ -17,7 +17,7 @@ const PaymentGatewaySchema = new Schema({
   },
   site: {
     type: String,
-    enum: ["Razorpay", "Paymob", "PayStack", "Mercadopago", "Flutterwave"],
+    enum: ["Razorpay", "Paymob", "Paystack", "PayStack", "Mercadopago", "Flutterwave"],
     required: true,
     index: true,
     default: "",

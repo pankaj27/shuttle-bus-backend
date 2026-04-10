@@ -16,7 +16,10 @@ const { template } = require("lodash");
 
 const paymentGateway = async (site) => {
   try {
-    const getPayment = await PaymentGateway.find({ site });
+    const escaped = String(site || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const getPayment = await PaymentGateway.find({
+      site: { $regex: new RegExp(`^${escaped}$`, "i") },
+    });
     const convertedObject = {};
 
     getPayment.forEach((item) => {

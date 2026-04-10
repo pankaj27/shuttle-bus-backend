@@ -6,7 +6,7 @@ export const paymentGatewayService = {
       const response = await api.get(`payment-gateways`)
       return response
     } catch (e) {
-      return e.response
+      return e.response?.data || { status: false, message: e.message }
     }
   },
 
@@ -15,7 +15,7 @@ export const paymentGatewayService = {
       const response = await api.patch(`payment-gateways/${site}`, params)
       return response
     } catch (e) {
-      return e.response
+      return e.response?.data || { status: false, message: e.message }
     }
   },
 
@@ -24,7 +24,7 @@ export const paymentGatewayService = {
       const response = await api.get(`payment-gateways/is-enabled/${site}`)
       return response
     } catch (e) {
-      return e.response
+      return e.response?.data || { status: false, message: e.message }
     }
   },
 }

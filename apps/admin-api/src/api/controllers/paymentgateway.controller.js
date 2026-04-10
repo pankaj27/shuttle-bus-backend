@@ -5,6 +5,28 @@ const { demoMode } = require("../../config/vars");
 const { maskSecret } = require("../utils/masker");
 const APIError = require("../utils/APIError");
 
+const normalizePaymentGatewaySite = (site) => {
+  const normalized = String(site || "")
+    .trim()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+
+  if (normalized === "razorpay") return "Razorpay";
+  if (normalized === "paystack" || normalized === "pay stack") return "Paystack";
+  if (normalized === "paymob") return "Paymob";
+  if (normalized === "mercadopago" || normalized === "mercado pago") return "Mercadopago";
+  if (normalized === "flutterwave") return "Flutterwave";
+  return site;
+};
+
+const isTxnNotSupported = (err) => {
+  const message = String(err?.message || "");
+  return message.includes(
+    "Transaction numbers are only allowed on a replica set member or mongos",
+  );
+};
+
 /**
  *  update payment is enabled
  * @public
@@ -43,8 +65,39 @@ exports.get = async (req, res, next) => {
   try {
     const getPaymentGateway = await paymentGateway.aggregate([
       {
+        $addFields: {
+          siteCanonical: {
+            $switch: {
+              branches: [
+                {
+                  case: { $eq: [{ $toLower: "$site" }, "razorpay"] },
+                  then: "Razorpay",
+                },
+                {
+                  case: { $eq: [{ $toLower: "$site" }, "paystack"] },
+                  then: "Paystack",
+                },
+                {
+                  case: { $eq: [{ $toLower: "$site" }, "paymob"] },
+                  then: "Paymob",
+                },
+                {
+                  case: { $eq: [{ $toLower: "$site" }, "mercadopago"] },
+                  then: "Mercadopago",
+                },
+                {
+                  case: { $eq: [{ $toLower: "$site" }, "flutterwave"] },
+                  then: "Flutterwave",
+                },
+              ],
+              default: "$site",
+            },
+          },
+        },
+      },
+      {
         $group: {
-          _id: "$site", // Group by the 'site' field
+          _id: "$siteCanonical",
           name: { $push: { id: "$_id", name: "$name", value: "$value" } }, // Collect the associated 'name' and 'value' fields for each site
           is_enabled: {
             $max: {
@@ -137,42 +190,53 @@ exports.update = async (req, res, next) => {
       status: false,
     });
   }
-  const session = await mongoose.startSession();
-  try {
-    await session.startTransaction();
-    let { paymentName } = req.params;
+  let { paymentName } = req.params;
+  paymentName = normalizePaymentGatewaySite(paymentName);
+
+  const execute = async (session) => {
+    const escaped = String(paymentName).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const updateManyOptions = session ? { session } : {};
+    await paymentGateway.updateMany(
+      { site: { $regex: new RegExp(`^${escaped}$`, "i") } },
+      { $set: { site: paymentName } },
+      updateManyOptions,
+    );
 
     if (req.body && Object.keys(req.body).length > 0) {
-      // Transform { key: 'val', secret: 'val' } into bulk operations
-      console.log("paymentName : ", paymentName);
-      const operations = Object.entries(req.body).map(
-        ([keyName, keyValue]) => ({
-          updateOne: {
-            filter: {
-              site: paymentName, // Use the site name (e.g., "Razorpay")
-              name: keyName, // Use the key (e.g., "key" or "secret")
-            },
-            update: {
-              $set: { value: keyValue },
-            },
-            upsert: true, // Creates the doc if it doesn't exist for this site
-          },
-        }),
-      );
+      const operations = Object.entries(req.body).map(([keyName, keyValue]) => ({
+        updateOne: {
+          filter: { site: paymentName, name: keyName },
+          update: { $set: { value: keyValue } },
+          upsert: true,
+        },
+      }));
 
-      await paymentGateway.bulkWrite(operations, { session });
+      const bulkWriteOptions = session ? { session } : {};
+      await paymentGateway.bulkWrite(operations, bulkWriteOptions);
     }
+  };
 
-    await session.commitTransaction();
-    session.endSession();
-
-    res.status(httpStatus.OK).json({
+  try {
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => execute(session));
+    } finally {
+      session.endSession();
+    }
+    return res.status(httpStatus.OK).json({
       message: `Payment gateway ${paymentName} updated successfully.`,
       status: true,
     });
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    next(new APIError(error)); // Use next() for error handling
+    if (!isTxnNotSupported(error)) return next(new APIError({ message: error.message }));
+    try {
+      await execute(null);
+      return res.status(httpStatus.OK).json({
+        message: `Payment gateway ${paymentName} updated successfully.`,
+        status: true,
+      });
+    } catch (fallbackError) {
+      return next(new APIError({ message: fallbackError.message }));
+    }
   }
 };
