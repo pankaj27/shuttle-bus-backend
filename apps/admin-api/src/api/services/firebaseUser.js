@@ -12,29 +12,58 @@ const firebaseAdmin = async () => {
     const getSetting = await Setting.findOne({}, "notifications");
     const notifications = getSetting?.notifications || null;
     const firebase_database_url = notifications?.firebase_database_url || "";
-    const firebase_credential = notifications?.firebase_credential || null;
+    let firebase_credential = notifications?.firebase_credential || null;
+
+    if (typeof firebase_credential === "string" && firebase_credential.trim()) {
+      try {
+        firebase_credential = JSON.parse(firebase_credential);
+      } catch (e) {
+        firebase_credential = null;
+      }
+    }
+
+    if (
+      firebase_credential &&
+      typeof firebase_credential.private_key === "string" &&
+      firebase_credential.private_key.includes("\\n")
+    ) {
+      firebase_credential.private_key = firebase_credential.private_key.replace(
+        /\\n/g,
+        "\n",
+      );
+    }
+
+    const normalizedCredential =
+      firebase_credential && typeof firebase_credential === "object"
+        ? {
+            projectId:
+              firebase_credential.projectId || firebase_credential.project_id,
+            clientEmail:
+              firebase_credential.clientEmail || firebase_credential.client_email,
+            privateKey:
+              firebase_credential.privateKey || firebase_credential.private_key,
+          }
+        : null;
 
     const hasValidCredential =
-      firebase_credential &&
-      typeof firebase_credential === "object" &&
-      !Array.isArray(firebase_credential) &&
-      typeof firebase_credential.project_id === "string" &&
-      firebase_credential.project_id &&
-      typeof firebase_credential.client_email === "string" &&
-      firebase_credential.client_email &&
-      typeof firebase_credential.private_key === "string" &&
-      firebase_credential.private_key;
+      normalizedCredential &&
+      typeof normalizedCredential.projectId === "string" &&
+      normalizedCredential.projectId &&
+      typeof normalizedCredential.clientEmail === "string" &&
+      normalizedCredential.clientEmail &&
+      typeof normalizedCredential.privateKey === "string" &&
+      normalizedCredential.privateKey;
 
     console.log(
       "Initializing Firebase with Project ID:",
-      hasValidCredential ? firebase_credential.project_id : "UNDEFINED",
+      hasValidCredential ? normalizedCredential.projectId : "UNDEFINED",
     );
     // console.log("Database URL:", firebase_database_url);
 
     if (!hasValidCredential) return;
 
     const appOptions = {
-      credential: admin.credential.cert(firebase_credential),
+      credential: admin.credential.cert(normalizedCredential),
     };
 
     if (firebase_database_url) {
