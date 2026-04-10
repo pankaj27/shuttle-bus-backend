@@ -193,13 +193,11 @@ exports.update = async (req, res, next) => {
   let { paymentName } = req.params;
   paymentName = normalizePaymentGatewaySite(paymentName);
 
-  const execute = async (session) => {
+  const execute = async () => {
     const escaped = String(paymentName).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const updateManyOptions = session ? { session } : {};
     await paymentGateway.updateMany(
       { site: { $regex: new RegExp(`^${escaped}$`, "i") } },
       { $set: { site: paymentName } },
-      updateManyOptions,
     );
 
     if (req.body && Object.keys(req.body).length > 0) {
@@ -211,32 +209,17 @@ exports.update = async (req, res, next) => {
         },
       }));
 
-      const bulkWriteOptions = session ? { session } : {};
-      await paymentGateway.bulkWrite(operations, bulkWriteOptions);
+      await paymentGateway.bulkWrite(operations);
     }
   };
 
   try {
-    const session = await mongoose.startSession();
-    try {
-      await session.withTransaction(async () => execute(session));
-    } finally {
-      session.endSession();
-    }
+    await execute();
     return res.status(httpStatus.OK).json({
       message: `Payment gateway ${paymentName} updated successfully.`,
       status: true,
     });
   } catch (error) {
-    if (!isTxnNotSupported(error)) return next(new APIError({ message: error.message }));
-    try {
-      await execute(null);
-      return res.status(httpStatus.OK).json({
-        message: `Payment gateway ${paymentName} updated successfully.`,
-        status: true,
-      });
-    } catch (fallbackError) {
-      return next(new APIError({ message: fallbackError.message }));
-    }
+    return next(new APIError({ message: error.message }));
   }
 };
