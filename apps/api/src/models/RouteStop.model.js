@@ -21,8 +21,12 @@ const RouteStopSchema = new Schema(
 
 RouteStopSchema.statics = {
   async stopOrderValidate(pickupId, dropId) {
-    // validate the order stops
-    const stopIds = [...pickupId, ...dropId];
+    const pickupIds = Array.isArray(pickupId) ? pickupId : [pickupId].filter(Boolean);
+    const dropIds = Array.isArray(dropId) ? dropId : [dropId].filter(Boolean);
+    const stopIds = [...pickupIds, ...dropIds].filter(Boolean);
+
+    if (stopIds.length === 0) return [{ result: false }];
+
     return this.aggregate([
       {
         $match: {
@@ -32,8 +36,19 @@ RouteStopSchema.statics = {
       {
         $group: {
           _id: "$routeId",
-          stops: {
-            $push: "$stopId",
+          pickupCount: {
+            $sum: { $cond: [{ $in: ["$stopId", pickupIds] }, 1, 0] },
+          },
+          dropCount: {
+            $sum: { $cond: [{ $in: ["$stopId", dropIds] }, 1, 0] },
+          },
+          minPickupOrder: {
+            $min: {
+              $cond: [{ $in: ["$stopId", pickupIds] }, "$order", null],
+            },
+          },
+          maxDropOrder: {
+            $max: { $cond: [{ $in: ["$stopId", dropIds] }, "$order", null] },
           },
         },
       },
@@ -41,15 +56,11 @@ RouteStopSchema.statics = {
         $project: {
           _id: 0,
           result: {
-            $cond: {
-              if: {
-                $eq: ["$stops", stopIds],
-              },
-              // Check if stops are in order
-              then: true,
-              // Route found in desired order
-              else: false, // Route not found in desired order
-            },
+            $and: [
+              { $gt: ["$pickupCount", 0] },
+              { $gt: ["$dropCount", 0] },
+              { $lt: ["$minPickupOrder", "$maxDropOrder"] },
+            ],
           },
         },
       },

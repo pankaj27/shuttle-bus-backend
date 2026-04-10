@@ -573,7 +573,9 @@ const nearestData = async (
         const dropoffTime =
           matchingDropItem.arrival_time || matchingDropItem.departure_time;
 
-        if (pickupTime && dropoffTime && pickupTime < dropoffTime) {
+        if (pickupTime !== null && pickupTime !== undefined &&
+            dropoffTime !== null && dropoffTime !== undefined &&
+            pickupTime < dropoffTime) {
           const {
             arrival_time,
             departure_time,
