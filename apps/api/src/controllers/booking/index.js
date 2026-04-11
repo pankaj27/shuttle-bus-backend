@@ -759,6 +759,13 @@ module.exports = {
         payment_mode === "PAYTM"
       ) {
         const razorPaySetting = await Utils.configRazorPay(); // call utils for the Razory pay
+        if (!razorPaySetting || !razorPaySetting.payment_settings) {
+          return res.status(200).json({
+            status: false,
+            message:
+              "Razorpay settings are not configured. Please set Razorpay key/secret from Admin Panel Payment Gateway settings.",
+          });
+        }
         const currency = razorPaySetting.payment_settings.currency;
         const receipt = razorPaySetting.ferriOrderId;
         const payment_capture =

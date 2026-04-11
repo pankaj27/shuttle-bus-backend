@@ -121,36 +121,53 @@ const sendSMS = async (phone, otp, templateId, message) => {
 const configRazorPay = async () => {
   const getsetting = await getSetting();
   const ferriOrderId = await generateOrderID("Ferri");
-  if (getsetting.payments) {
-    const is_production = getsetting.payments.is_production;
-    var status = "";
-    if (is_production) {
-      // is_production is true
-      status = "LIVE";
-      let razor = new Razorpay({
-        key_id: getsetting.payments.key, // process.env.RAZOR_KEY_ID,
-        key_secret: getsetting.payments.secret, // process.env.RAZOR_KEY_SECRET,
-      });
-      return {
-        status,
-        payment_settings: getsetting.payments,
-        razor,
-        ferriOrderId,
-      };
-    } else {
-      status = "TEST";
-      let razor = new Razorpay({
-        key_id: getsetting.payments.key, // process.env.RAZOR_KEY_ID,
-        key_secret: getsetting.payments.secret, // process.env.RAZOR_KEY_SECRET,
-      });
-      return {
-        status,
-        payment_settings: getsetting.payments,
-        razor,
-        ferriOrderId,
+  let payments =
+    getsetting && typeof getsetting === "object" ? getsetting.payments : null;
+
+  if (!payments || !payments.key || !payments.secret) {
+    const razorpayGateway = await paymentGateway("Razorpay");
+    const key =
+      razorpayGateway && typeof razorpayGateway.key === "string"
+        ? razorpayGateway.key.trim()
+        : "";
+    const secret =
+      razorpayGateway && typeof razorpayGateway.secret === "string"
+        ? razorpayGateway.secret.trim()
+        : "";
+    const currency =
+      razorpayGateway && typeof razorpayGateway.currency === "string"
+        ? razorpayGateway.currency.trim()
+        : "INR";
+    const mode =
+      razorpayGateway && typeof razorpayGateway.mode === "string"
+        ? razorpayGateway.mode.trim().toLowerCase()
+        : "";
+
+    if (key && secret) {
+      payments = {
+        key,
+        secret,
+        currency,
+        is_production: mode && mode !== "sandbox" && mode !== "test",
+        payment_capture: 1,
       };
     }
   }
+
+  if (!payments || !payments.key || !payments.secret) return null;
+
+  const status = payments.is_production ? "LIVE" : "TEST";
+  const razor = new Razorpay({
+    key_id: payments.key,
+    key_secret: payments.secret,
+  });
+
+  return {
+    status,
+    payment_settings: payments,
+    razor,
+    ferriOrderId,
+  };
 };
 
 function generateOrderID(type) {
