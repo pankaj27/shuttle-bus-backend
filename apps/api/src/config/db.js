@@ -43,6 +43,26 @@ exports.connect = async () => {
     } catch (indexErr) {
       console.error("Failed to ensure 2dsphere index on locations.location", indexErr);
     }
+
+    try {
+      const payments = mongoose.connection.collection("payments");
+      await payments.createIndex({ orderId: 1 });
+      await payments.createIndex({ ferriOrderId: 1 });
+      await payments.createIndex({ bookingLogId: 1 });
+      await payments.createIndex({ payment_status: 1 });
+    } catch (indexErr) {
+      console.error("Failed to ensure indexes on payments", indexErr);
+    }
+
+    try {
+      const bookingLogs = mongoose.connection.collection("booking_logs");
+      await bookingLogs.createIndex({ userId: 1, createdAt: -1 });
+      await bookingLogs.createIndex({ busScheduleId: 1 });
+      await bookingLogs.createIndex({ routeId: 1 });
+      await bookingLogs.createIndex({ booking_date: 1 });
+    } catch (indexErr) {
+      console.error("Failed to ensure indexes on booking_logs", indexErr);
+    }
   } catch (err) {
     console.error("MongoDB initial connection failed", err);
     process.exit(1); // 🔴 triggers Docker restart

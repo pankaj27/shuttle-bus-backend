@@ -30,6 +30,7 @@ const PaymentSchema = new mongoose.Schema(
     is_deleted: { type: Boolean, default: false },
     is_refferal: { type: Boolean, default: false },
     orderId: { type: String, required: true, index: true },
+    ferriOrderId: { type: String, default: "", index: true },
     paymentId: { type: String, default: "" },
     payment_signature: { type: String, default: "" },
     passId: {

@@ -23,6 +23,7 @@ const { HelperCustom } = require("../../helpers");
 const { user } = require("../../notifications");
 const { enqueueSendSMS } = require("../../queues/sms.queue");
 const mongoose = require("mongoose");
+const axios = require("axios");
 const {
   walletPayment,
   bookingPayment,
@@ -572,6 +573,7 @@ module.exports = {
     try {
       const {
         bus_id,
+        busschedule_id,
         pass_id,
         pass_amount,
         pass_no_of_rides,
@@ -585,6 +587,28 @@ module.exports = {
       } = req.body;
 
       const { userId, walletId } = req.session;
+
+      const normalizeBaseUrl = (value) => {
+        let baseUrl = String(value || "").trim();
+        baseUrl = baseUrl.replace(/^`|`$/g, "").replace(/^"|"$/g, "").replace(/^'|'$/g, "");
+        if (!baseUrl) return "";
+        if (!baseUrl.endsWith("/")) baseUrl += "/";
+        return baseUrl;
+      };
+
+      const createRazorpayOrder = async ({ keyId, keySecret }, payload) => {
+        const response = await axios.post("https://api.razorpay.com/v1/orders", payload, {
+          timeout: 15000,
+          auth: {
+            username: keyId,
+            password: keySecret,
+          },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        return response.data;
+      };
 
       if (payment_mode === "WALLET") {
         let checkBalance = await Wallet.findOne({
@@ -600,6 +624,7 @@ module.exports = {
             payment_mode,
             userId,
             bus_id,
+            busschedule_id,
             route_id,
             pickup_stop_id,
             drop_stop_id,
@@ -628,7 +653,7 @@ module.exports = {
                     getBookingLogId._id,
                   ),
                 },
-                updateObj,
+                PaymentObj,
               );
             } else {
               var PaymentObj = {
@@ -662,6 +687,7 @@ module.exports = {
                 getBookingLog.payment_mode,
                 getBookingLog.userId,
                 getBookingLog.busId,
+                getBookingLog.busScheduleId,
                 getBookingLog.routeId,
                 getBookingLog.pickupId,
                 getBookingLog.dropoffId,
@@ -745,6 +771,7 @@ module.exports = {
           payment_mode,
           userId,
           bus_id,
+          busschedule_id,
           route_id,
           pickup_stop_id,
           drop_stop_id,
@@ -768,8 +795,40 @@ module.exports = {
             },
           };
 
-          const razordata =
-            await razorPaySetting.razor.orders.create(parameters);
+          const keyId =
+            razorPaySetting.payment_settings &&
+            typeof razorPaySetting.payment_settings.key === "string"
+              ? razorPaySetting.payment_settings.key.trim()
+              : "";
+          const keySecret =
+            razorPaySetting.payment_settings &&
+            typeof razorPaySetting.payment_settings.secret === "string"
+              ? razorPaySetting.payment_settings.secret.trim()
+              : "";
+
+          if (!keyId || !keySecret) {
+            return res.status(200).json({
+              status: false,
+              message: "Razorpay keys are not configured.",
+            });
+          }
+
+          let razordata;
+          try {
+            razordata = await createRazorpayOrder({ keyId, keySecret }, parameters);
+          } catch (e) {
+            const message =
+              e?.code === "ECONNABORTED"
+                ? "Razorpay order creation timed out from server."
+                : e?.response?.data?.error?.description ||
+                  e?.response?.data?.error?.reason ||
+                  e?.message ||
+                  "Razorpay order creation failed.";
+            return res.status(200).json({
+              status: false,
+              message,
+            });
+          }
           if (
             await Payment.exists({
               bookingLogId: new mongoose.Types.ObjectId(
@@ -814,10 +873,11 @@ module.exports = {
           }
 
           const getuser = await User.findById(userId);
+          const baseUrl = normalizeBaseUrl(process.env.BASE_URL);
           const result = {
             status: true,
             message: "successfully generate booking order.",
-            verify_url: `${process.env.BASE_URL}api/booking/pass-payment-verify`,
+            verify_url: `${baseUrl}api/booking/pass-payment-verify`,
             data: {
               orderId: razordata.id,
               amount: pass_amount,
