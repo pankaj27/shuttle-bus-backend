@@ -8,6 +8,7 @@ const mongoose = require("./src/config/db");
 //process.env.TZ = "Asia/Kolkata";
 
 const routes = require("./src/routes");
+const paymentRoute = require("./src/routes/payment");
 
 // open mongoose connection
 mongoose.connect();
@@ -86,6 +87,7 @@ app.use(async (req, res, next) => {
 });
 
 app.use("/api", routes); // routes api
+app.use("/payments", paymentRoute);
 
 app.get("/newtest", function (req, res) {
   res.status(200).json({

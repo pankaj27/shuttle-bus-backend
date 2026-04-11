@@ -547,7 +547,6 @@ module.exports = {
         } else if (payment_name === "Razorpay" && payment_mode === "ONLINE") {
           const session = await mongoose.startSession();
           try {
-            session.startTransaction();
             let booking_date = date;
             const getBookingLog = await BookingLog.createLog(
               booking_date,
@@ -596,28 +595,23 @@ module.exports = {
                   },
                   { session },
                 );
-
-                await session.commitTransaction();
                 res.status(200).json({
                   status: true,
                   link: result.short_url,
                 });
               } else {
-                await session.abortTransaction();
                 res.status(200).json({
                   status: false,
                   link: "",
                 });
               }
             } else {
-              await session.abortTransaction();
               res.status(200).json({
                 status: false,
                 link: "",
               });
             }
           } catch (err) {
-            await session.abortTransaction();
             console.log("Razorpay ONLINE error", err);
             res.status(200).json({
               status: false,
@@ -1194,7 +1188,7 @@ module.exports = {
       const { success, order, payment_name } = req.query;
 
       console.log("------------client side callback --------------------");
-      if (payment_name === "Razorpay") {
+      if (String(payment_name || "").toLowerCase() === "razorpay") {
         const result = await paymentVerification(req.query);
         if (result) {
           res.send(`
@@ -1219,7 +1213,7 @@ module.exports = {
           </div>
               `);
         }
-      } else if (payment_name === "MercadoPago") {
+      } else if (String(payment_name || "").toLowerCase() === "mercadopago") {
         const result = await mpPaymentVerification(req.query);
         if (result) {
           res.send(`
@@ -1627,6 +1621,7 @@ module.exports = {
             getBookingLog.payment_mode,
             getBookingLog.userId,
             getBookingLog.busId,
+            getBookingLog.busScheduleId,
             getBookingLog.routeId,
             getBookingLog.pickupId,
             getBookingLog.dropoffId,

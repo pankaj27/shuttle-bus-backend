@@ -19,6 +19,14 @@ let instance = null;
 let defaultCurrency = "";
 let secretKey = "";
 
+const normalizeBaseUrl = (value) => {
+  let baseUrl = String(value || "").trim();
+  baseUrl = baseUrl.replace(/^`|`$/g, "").replace(/^"|"$/g, "").replace(/^'|'$/g, "");
+  if (!baseUrl) return "";
+  if (!baseUrl.endsWith("/")) baseUrl += "/";
+  return baseUrl;
+};
+
 const authenticate = async () => {
   try {
     const razorpaySetting = await paymentGateway("Razorpay");
@@ -68,6 +76,7 @@ const initiatePay = async (amount, userDetail) => {
     if (!instance) await authenticate();
     if (!instance) return { codeStatus: false };
 
+    const baseUrl = normalizeBaseUrl(process.env.BASE_URL);
     let parameters = {
       amount: parseInt(amount) * 100,
       currency: defaultCurrency,
@@ -88,7 +97,7 @@ const initiatePay = async (amount, userDetail) => {
           ? userDetail.bookingLogId.toString()
           : "",
       },
-      callback_url: `${process.env.BASE_URL}api/payments/verify?type=${userDetail.type}&payment_name=${userDetail.payment_name}`,
+      callback_url: `${baseUrl}payments/verify?type=${userDetail.type}&payment_name=${userDetail.payment_name}`,
       callback_method: "get",
       options: {
         checkout: {
@@ -211,7 +220,6 @@ const paymentVerification = async (rzpay) => {
         // generate pass booking data
         const session = await mongoose.startSession();
         try {
-          session.startTransaction();
           const getBookingLog = await BookingLog.findById(
             getPayment.bookingLogId,
           )
@@ -252,8 +260,6 @@ const paymentVerification = async (rzpay) => {
                 session,
               });
 
-              await session.commitTransaction();
-
               if (getPayment.userId && getPayment.userId.device_token) {
                 const title = "Booking Confirmed";
                 const startbookingDate = moment(getBookingLog.booking_date)
@@ -293,7 +299,6 @@ const paymentVerification = async (rzpay) => {
               return true;
             } else {
               console.log("generateSinglePass failed:", getBookingIds);
-              await session.abortTransaction();
               return false;
             }
           } else {
@@ -301,11 +306,9 @@ const paymentVerification = async (rzpay) => {
               "BookingLog not found for payment:",
               getPayment.bookingLogId,
             );
-            await session.abortTransaction();
             return false;
           }
         } catch (err) {
-          await session.abortTransaction();
           console.log("pass verify error", err);
           return false;
         } finally {
